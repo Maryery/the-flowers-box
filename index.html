@@ -23,7 +23,6 @@
       <button class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">☰</button>
       <nav class="main-nav">
         <a href="#catalogo">CATÁLOGO</a>
-        <a href="#como-funciona">CÓMO FUNCIONA</a>
         <a href="#pedido" class="pedido-link">HAZ TU PEDIDO</a>
       </nav>
         <a class="brand header-brand" href="#top" aria-label="Volver al inicio de The Flowers Box">
@@ -186,23 +185,53 @@
             <div class="product-info"><div><h3>Pink Harmony</h3><p>Claveles, astromelias y margaritas en caja vichy.</p></div><strong>72 €*</strong></div>
             <button class="product-button" type="button">Elegir esta caja</button>
           </article>
-        </div>
       </div>
       <p class="catalog-price-note">
-  * Los precios indicados corresponden a Flower Box con 25 rosas.
-  Para cantidades superiores o composiciones personalizadas,
-  consúltanos sin compromiso.
-</p>
+        * Los precios indicados corresponden a Flower Box con 25 rosas.
+        Para cantidades superiores o composiciones personalizadas,
+        consúltanos sin compromiso.
+      </p>
+      </div>
     </section>
 
     <section class="order-section" id="pedido">
-      <div class="section-container order-grid">
-        <div class="order-copy">
-          <span class="eyebrow">Haz tu pedido</span>
-          <h2>Creamos algo especial para ti <span>✱</span></h2>
-          <p>Cuéntanos qué diseño te gusta, cuándo debemos entregarlo y el mensaje que quieres incluir.</p>
-          <div class="order-contact"><span>También puedes pedir por WhatsApp</span><a href="https://wa.me/34678357373" target="_blank" rel="noopener">+34 678 357 373</a></div>
-        </div>
+  <div class="section-container order-grid">
+
+    <div class="order-copy">
+      <span class="eyebrow">Haz tu pedido</span>
+
+      <h2>
+        Creamos algo especial para ti <span>✱</span>
+      </h2>
+
+      <p>
+        Cuéntanos qué diseño te gusta, cuándo debemos entregarlo
+        y el mensaje que quieres incluir.
+      </p>
+
+      <div class="order-contact">
+  <span>¿Prefieres hacer tu pedido por WhatsApp?</span>
+
+  <a
+    class="whatsapp-button"
+    href="https://wa.me/34678357373"
+    target="_blank"
+    rel="noopener"
+    aria-label="Pedir por WhatsApp"
+  >
+    <svg
+      class="whatsapp-icon"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path d="M20.52 3.48A11.86 11.86 0 0 0 12.02 0C5.39 0 0 5.39 0 12.02c0 2.12.56 4.19 1.62 6.01L0 24l6.13-1.6a12.03 12.03 0 0 0 5.89 1.52h.01C18.64 23.92 24 18.53 24 11.9c0-3.2-1.25-6.2-3.48-8.42ZM12.03 21.9h-.01a9.9 9.9 0 0 1-5.05-1.39l-.36-.21-3.64.95.97-3.55-.23-.37A9.88 9.88 0 0 1 2.1 12C2.1 6.53 6.55 2.08 12.02 2.08c2.64 0 5.13 1.03 7 2.9a9.84 9.84 0 0 1 2.89 6.99c0 5.47-4.45 9.93-9.88 9.93Zm5.44-7.43c-.3-.15-1.78-.88-2.06-.98-.28-.1-.48-.15-.68.15-.2.3-.78.98-.95 1.18-.18.2-.35.23-.65.08-.3-.15-1.28-.47-2.43-1.49-.9-.8-1.5-1.79-1.68-2.09-.18-.3-.02-.46.13-.61.13-.13.3-.35.45-.53.15-.18.2-.3.3-.5.1-.2.05-.38-.03-.53-.08-.15-.68-1.64-.94-2.25-.25-.6-.5-.51-.68-.52h-.58c-.2 0-.53.08-.8.38-.28.3-1.06 1.03-1.06 2.52s1.08 2.92 1.23 3.12c.15.2 2.12 3.23 5.14 4.53.72.31 1.29.5 1.73.64.73.23 1.39.2 1.91.12.58-.09 1.78-.73 2.03-1.44.25-.7.25-1.3.18-1.43-.08-.13-.28-.2-.58-.35Z"/>
+    </svg>
+
+    <span>Escríbenos por WhatsApp</span>
+  </a>
+</div>
+</div>
 
         <form class="order-form" id="order-form">
           <div class="form-row">
@@ -211,7 +240,7 @@
           </div>
           <label>Correo electrónico<input type="email" name="email" autocomplete="email" required></label>
           <div class="form-row">
-            <label>Caja floral<select name="producto" id="producto" required><option value="">Selecciona una opción</option><option>Red Passion</option><option>Pink Moment</option><option>Pure White</option><option>Blush Garden</option><option>Soft Blush</option><option>Color Story</option></select></label>
+            <label>Caja floral<select name="producto" id="producto" required><option value="">Selecciona una opción</option><option>Red Passion</option><option>Pink Moment</option><option>Pure White</option><option>Blush Garden</option><option>Soft Blush</option><option>Pink Harmony</option></select></label>
             <label>Fecha de entrega<input type="date" name="fecha" required></label>
           </div>
           <div class="form-row">
