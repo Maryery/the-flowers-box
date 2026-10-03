@@ -390,11 +390,13 @@
 									name="cantidad"
 									id="cantidad"
 									min="25"
+									max="100"
 									value="25"
 									step="1"
 									required
+									oninput="if (this.value > 100) this.value = 100;"
 								/>
-								<small>Mínimo 25 flores</small>
+								<small>Entre 25 y 100 flores</small>
 							</label>
 						</div>
 
@@ -402,15 +404,15 @@
 							<label>
 								Fecha de entrega
 								<input type="date" name="fecha" id="fecha-entrega" required />
-								<small
-									>Los pedidos deben realizarse con al menos 48 horas de
-									antelación.</small
-								>
+								<small>
+									Los pedidos deben realizarse con al menos 48 horas de
+									antelación.
+								</small>
 							</label>
-
 							<label>
 								Nombre del destinatario
 								<input type="text" name="destinatario" required />
+								<small>&nbsp;</small>
 							</label>
 						</div>
 
@@ -472,8 +474,12 @@
 					<script>
 						const orderForm = document.getElementById('order-form');
 						const fechaEntrega = document.getElementById('fecha-entrega');
+						const cantidadFlores = document.getElementById('cantidad');
 
-						// Exigir un mínimo de 48 horas de antelación
+						// ==================================================
+						// FECHA MÍNIMA DE ENTREGA: 48 HORAS
+						// ==================================================
+
 						const ahora = new Date();
 						const fechaMinima = new Date(ahora);
 
@@ -486,11 +492,81 @@
 						);
 						const minDay = String(fechaMinima.getDate()).padStart(2, '0');
 
-						fechaEntrega.min = `${minYear}-${minMonth}-${minDay}`;
+						const fechaMinimaFormato = `${minYear}-${minMonth}-${minDay}`;
+
+						// Bloquea en el calendario las fechas anteriores
+						// pero permite escribir normalmente en el campo.
+						fechaEntrega.min = fechaMinimaFormato;
+
+						// ==================================================
+						// CANTIDAD DE FLORES: ENTRE 25 Y 100
+						// ==================================================
+
+						cantidadFlores.addEventListener('input', function () {
+							const cantidad = Number(this.value);
+
+							if (this.value === '') {
+								this.setCustomValidity('');
+								return;
+							}
+
+							if (cantidad < 25) {
+								this.setCustomValidity('El pedido mínimo es de 25 flores.');
+							} else if (cantidad > 100) {
+								this.value = 100;
+								this.setCustomValidity('');
+							} else {
+								this.setCustomValidity('');
+							}
+						});
+
+						// ==================================================
+						// ENVÍO DEL FORMULARIO
+						// ==================================================
 
 						orderForm.addEventListener('submit', function (event) {
 							event.preventDefault();
 
+							// Comprobar fecha
+							if (!fechaEntrega.value) {
+								fechaEntrega.setCustomValidity(
+									'Selecciona una fecha de entrega.'
+								);
+
+								fechaEntrega.reportValidity();
+								return;
+							}
+
+							if (fechaEntrega.value < fechaMinimaFormato) {
+								fechaEntrega.setCustomValidity(
+									'La fecha de entrega debe ser con al menos 48 horas de antelación.'
+								);
+
+								fechaEntrega.reportValidity();
+								return;
+							}
+
+							fechaEntrega.setCustomValidity('');
+
+							// Comprobar cantidad de flores
+							const cantidadSeleccionada = Number(cantidadFlores.value);
+
+							if (
+								!cantidadFlores.value ||
+								cantidadSeleccionada < 25 ||
+								cantidadSeleccionada > 100
+							) {
+								cantidadFlores.setCustomValidity(
+									'La cantidad debe estar entre 25 y 100 flores.'
+								);
+
+								cantidadFlores.reportValidity();
+								return;
+							}
+
+							cantidadFlores.setCustomValidity('');
+
+							// Comprobar todos los campos obligatorios
 							if (!orderForm.checkValidity()) {
 								orderForm.reportValidity();
 								return;
@@ -510,7 +586,7 @@
 							const dedicatoria = formData.get('dedicatoria');
 							const comentarios = formData.get('comentarios');
 
-							// Convertir la fecha a formato dd/mm/aaaa
+							// Convertir fecha a formato dd/mm/aaaa
 							let fechaFormateada = fecha;
 
 							if (fecha) {
