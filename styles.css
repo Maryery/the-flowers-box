@@ -1159,3 +1159,21 @@ input:focus,select:focus,textarea:focus{
 	margin-top: 7px;
 	min-height: 16px;
 }
+
+.flower-box-info {
+	display: block;
+	margin-top: 8px;
+	color: var(--muted);
+	font-size: 12px;
+	font-weight: 400;
+	letter-spacing: 0;
+	text-transform: none;
+}
+
+.order-form > .form-row:has(#producto) {
+	grid-template-columns: 1fr;
+}
+
+.order-form > .form-row:has(#producto) label {
+	width: 100%;
+}
