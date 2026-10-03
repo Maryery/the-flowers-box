@@ -369,6 +369,7 @@
 							</small>
 						</label>
 
+						<!-- CAJA FLORAL -->
 						<div class="form-row">
 							<label>
 								Caja floral
@@ -388,25 +389,33 @@
 							</label>
 						</div>
 
+						<!-- FECHA Y DESTINATARIO -->
 						<div class="form-row">
 							<label>
 								Fecha de entrega
+
 								<input type="date" name="fecha" id="fecha-entrega" required />
+
 								<small>
-									Los pedidos deben realizarse con al menos 48 horas de
-									antelación.
+									Los pedidos deben realizarse con al menos 24 horas de
+									antelación. No realizamos entregas los domingos.
 								</small>
 							</label>
+
 							<label>
 								Nombre del destinatario
+
 								<input type="text" name="destinatario" required />
+
 								<small>&nbsp;</small>
 							</label>
 						</div>
 
+						<!-- ZONA Y DIRECCIÓN -->
 						<div class="form-row">
 							<label>
 								Zona de entrega
+
 								<select name="zona" required>
 									<option value="">Selecciona la zona</option>
 									<option>Adeje</option>
@@ -422,6 +431,7 @@
 
 							<label>
 								Dirección de entrega
+
 								<input
 									type="text"
 									name="direccion"
@@ -431,8 +441,10 @@
 							</label>
 						</div>
 
+						<!-- DEDICATORIA -->
 						<label>
 							Dedicatoria
+
 							<textarea
 								name="dedicatoria"
 								rows="4"
@@ -440,8 +452,10 @@
 							></textarea>
 						</label>
 
+						<!-- COMENTARIOS -->
 						<label>
 							Comentarios adicionales
+
 							<textarea
 								name="comentarios"
 								rows="4"
@@ -449,11 +463,14 @@
 							></textarea>
 						</label>
 
+						<!-- PRIVACIDAD -->
 						<label class="checkbox-label">
 							<input type="checkbox" name="privacidad" required />
-							<span>He leído y acepto la política de privacidad.</span>
+
+							<span> He leído y acepto la política de privacidad. </span>
 						</label>
 
+						<!-- BOTÓN -->
 						<button class="form-button" type="submit">Enviar solicitud</button>
 
 						<p class="form-status" id="form-status" aria-live="polite"></p>
@@ -462,51 +479,86 @@
 					<script>
 						const orderForm = document.getElementById('order-form');
 						const fechaEntrega = document.getElementById('fecha-entrega');
-						const cantidadFlores = document.getElementById('cantidad');
 
 						// ==================================================
-						// FECHA MÍNIMA DE ENTREGA: 48 HORAS
+						// FECHA MÍNIMA DE ENTREGA: 24 HORAS
 						// ==================================================
 
 						const ahora = new Date();
+
 						const fechaMinima = new Date(ahora);
 
-						fechaMinima.setHours(fechaMinima.getHours() + 48);
+						fechaMinima.setHours(fechaMinima.getHours() + 24);
 
 						const minYear = fechaMinima.getFullYear();
+
 						const minMonth = String(fechaMinima.getMonth() + 1).padStart(
 							2,
 							'0'
 						);
+
 						const minDay = String(fechaMinima.getDate()).padStart(2, '0');
 
 						const fechaMinimaFormato = `${minYear}-${minMonth}-${minDay}`;
 
-						// Bloquea en el calendario las fechas anteriores
-						// pero permite escribir normalmente en el campo.
+						// Bloquea fechas anteriores
 						fechaEntrega.min = fechaMinimaFormato;
 
 						// ==================================================
-						// CANTIDAD DE FLORES: ENTRE 25 Y 100
+						// LIMPIAR ERRORES AL CAMBIAR LA FECHA
 						// ==================================================
 
-						cantidadFlores.addEventListener('input', function () {
-							const cantidad = Number(this.value);
-
-							if (this.value === '') {
-								this.setCustomValidity('');
-								return;
-							}
-
-							if (cantidad < 25) {
-								this.setCustomValidity('El pedido mínimo es de 25 flores.');
-							} else if (cantidad > 100) {
-								this.value = 100;
-								this.setCustomValidity('');
-							} else {
-								this.setCustomValidity('');
-							}
+						fechaEntrega.addEventListener('input', function () {
+							this.setCustomValidity('');
 						});
+
+						// ==================================================
+						// VALIDAR FECHA DE ENTREGA
+						// ==================================================
+
+						function validarFechaEntrega() {
+							// No hay fecha seleccionada
+							if (!fechaEntrega.value) {
+								fechaEntrega.setCustomValidity(
+									'Selecciona una fecha de entrega.'
+								);
+
+								return false;
+							}
+
+							// Comprobar mínimo 24 horas
+							if (fechaEntrega.value < fechaMinimaFormato) {
+								fechaEntrega.setCustomValidity(
+									'El pedido debe realizarse con al menos 24 horas de antelación.'
+								);
+
+								return false;
+							}
+
+							// Convertimos la fecha YYYY-MM-DD
+							const [year, month, day] = fechaEntrega.value
+								.split('-')
+								.map(Number);
+
+							const fechaSeleccionada = new Date(year, month - 1, day);
+
+							// ==============================================
+							// BLOQUEAR DOMINGOS
+							// 0 = domingo
+							// ==============================================
+
+							if (fechaSeleccionada.getDay() === 0) {
+								fechaEntrega.setCustomValidity(
+									'No realizamos entregas los domingos. Selecciona otro día.'
+								);
+
+								return false;
+							}
+
+							fechaEntrega.setCustomValidity('');
+
+							return true;
+						}
 
 						// ==================================================
 						// ENVÍO DEL FORMULARIO
@@ -515,72 +567,67 @@
 						orderForm.addEventListener('submit', function (event) {
 							event.preventDefault();
 
-							// Comprobar fecha
-							if (!fechaEntrega.value) {
-								fechaEntrega.setCustomValidity(
-									'Selecciona una fecha de entrega.'
-								);
+							// ==========================================
+							// VALIDAR FECHA
+							// ==========================================
 
+							if (!validarFechaEntrega()) {
 								fechaEntrega.reportValidity();
+
 								return;
 							}
 
-							if (fechaEntrega.value < fechaMinimaFormato) {
-								fechaEntrega.setCustomValidity(
-									'La fecha de entrega debe ser con al menos 48 horas de antelación.'
-								);
+							// ==========================================
+							// VALIDAR RESTO DEL FORMULARIO
+							// ==========================================
 
-								fechaEntrega.reportValidity();
-								return;
-							}
-
-							fechaEntrega.setCustomValidity('');
-
-							// Comprobar cantidad de flores
-							const cantidadSeleccionada = Number(cantidadFlores.value);
-
-							if (
-								!cantidadFlores.value ||
-								cantidadSeleccionada < 25 ||
-								cantidadSeleccionada > 100
-							) {
-								cantidadFlores.setCustomValidity(
-									'La cantidad debe estar entre 25 y 100 flores.'
-								);
-
-								cantidadFlores.reportValidity();
-								return;
-							}
-
-							cantidadFlores.setCustomValidity('');
-
-							// Comprobar todos los campos obligatorios
 							if (!orderForm.checkValidity()) {
 								orderForm.reportValidity();
+
 								return;
 							}
+
+							// ==========================================
+							// OBTENER DATOS
+							// ==========================================
 
 							const formData = new FormData(orderForm);
 
 							const nombre = formData.get('nombre');
+
 							const telefono = formData.get('telefono');
+
 							const email = formData.get('email');
+
 							const producto = formData.get('producto');
-							const cantidad = formData.get('cantidad');
+
 							const fecha = formData.get('fecha');
+
 							const destinatario = formData.get('destinatario');
+
 							const zona = formData.get('zona');
+
 							const direccion = formData.get('direccion');
+
 							const dedicatoria = formData.get('dedicatoria');
+
 							const comentarios = formData.get('comentarios');
 
-							// Convertir fecha a formato dd/mm/aaaa
+							// ==========================================
+							// FORMATEAR FECHA
+							// ==========================================
+
 							let fechaFormateada = fecha;
 
 							if (fecha) {
 								const [year, month, day] = fecha.split('-');
+
 								fechaFormateada = `${day}/${month}/${year}`;
 							}
+
+							// ==========================================
+							// MENSAJE PARA WHATSAPP
+							// ==========================================
 
 							const mensaje = `NUEVA SOLICITUD - THE FLOWERS BOX
 
@@ -589,7 +636,7 @@ Teléfono: ${telefono}
 Email: ${email}
 
 FLOWER BOX: ${producto}
-Cantidad de flores: ${cantidad}
+Contenido: 25 flores
 Fecha de entrega: ${fechaFormateada}
 
 Destinatario: ${destinatario}
@@ -605,6 +652,10 @@ ${comentarios || 'Sin comentarios'}
 Entrega en Tenerife Sur: GRATIS
 
 Solicitud enviada desde la web de The Flowers Box.`;
+
+							// ==========================================
+							// ABRIR WHATSAPP
+							// ==========================================
 
 							const numeroWhatsApp = '34678357373';
 
