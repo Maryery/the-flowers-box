@@ -26,12 +26,6 @@ document.querySelectorAll('.product-button').forEach(button => {
   });
 });
 
-form?.addEventListener('submit', event => {
-  event.preventDefault();
-  status.textContent = 'Solicitud preparada. Conecta Formspree para recibir los pedidos por correo.';
-  status.style.color = '#4a4b32';
-});
-
 const brandLogo = document.querySelector(".header-brand");
 
 brandLogo?.addEventListener("click", event => {

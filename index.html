@@ -330,32 +330,30 @@
 
 					<form class="order-form" id="order-form">
 						<div class="form-row">
-							<label
-								>Nombre y apellidos<input
-									type="text"
-									name="nombre"
-									autocomplete="name"
-									required
-							/></label>
+							<label>
+								Nombre y apellidos
+								<input type="text" name="nombre" autocomplete="name" required />
+							</label>
+
 							<label for="telefono">
 								Teléfono de contacto *
-
 								<input
 									type="tel"
 									id="telefono"
 									name="telefono"
-									placeholder="+34 678 357 373"
+									placeholder="+34 600 000 000"
 									autocomplete="tel"
 									inputmode="tel"
 									required
 									minlength="8"
 									maxlength="20"
 									pattern="[+]?[0-9\s()-]{8,20}"
-									title="Introduce un teléfono válido. Ejemplo: +34 678 357 373"
+									title="Introduce un teléfono válido. Ejemplo: +34 600 000 000"
 									oninput="this.value = this.value.replace(/[^0-9+\s()-]/g, '')"
 								/>
 							</label>
 						</div>
+
 						<label for="email">
 							Correo electrónico
 							<input
@@ -366,13 +364,15 @@
 								autocomplete="email"
 								required
 							/>
-							<small class="error-message"
-								>Introduce un correo electrónico válido.</small
-							>
+							<small class="error-message">
+								Introduce un correo electrónico válido.
+							</small>
 						</label>
+
 						<div class="form-row">
-							<label
-								>Caja floral<select name="producto" id="producto" required>
+							<label>
+								Caja floral
+								<select name="producto" id="producto" required>
 									<option value="">Selecciona una opción</option>
 									<option>Red Passion</option>
 									<option>Pink Moment</option>
@@ -380,21 +380,44 @@
 									<option>Blush Garden</option>
 									<option>Soft Blush</option>
 									<option>Pink Harmony</option>
-								</select></label
-							>
-							<label
-								>Fecha de entrega<input type="date" name="fecha" required
-							/></label>
-						</div>
-						<div class="form-row">
-							<label
-								>Nombre del destinatario<input
-									type="text"
-									name="destinatario"
+								</select>
+							</label>
+
+							<label>
+								Cantidad de flores
+								<input
+									type="number"
+									name="cantidad"
+									id="cantidad"
+									min="25"
+									value="25"
+									step="1"
 									required
-							/></label>
-							<label
-								>Zona de entrega<select name="zona" required>
+								/>
+								<small>Mínimo 25 flores</small>
+							</label>
+						</div>
+
+						<div class="form-row">
+							<label>
+								Fecha de entrega
+								<input type="date" name="fecha" id="fecha-entrega" required />
+								<small
+									>Los pedidos deben realizarse con al menos 48 horas de
+									antelación.</small
+								>
+							</label>
+
+							<label>
+								Nombre del destinatario
+								<input type="text" name="destinatario" required />
+							</label>
+						</div>
+
+						<div class="form-row">
+							<label>
+								Zona de entrega
+								<select name="zona" required>
 									<option value="">Selecciona la zona</option>
 									<option>Adeje</option>
 									<option>Arona</option>
@@ -404,38 +427,128 @@
 									<option>San Miguel de Abona</option>
 									<option>Granadilla de Abona</option>
 									<option>Otra zona de Tenerife Sur</option>
-								</select></label
-							>
+								</select>
+							</label>
+
+							<label>
+								Dirección de entrega
+								<input
+									type="text"
+									name="direccion"
+									autocomplete="street-address"
+									required
+								/>
+							</label>
 						</div>
-						<label
-							>Dirección de entrega<input
-								type="text"
-								name="direccion"
-								autocomplete="street-address"
-								required
-						/></label>
-						<label
-							>Dedicatoria<textarea
+
+						<label>
+							Dedicatoria
+							<textarea
 								name="dedicatoria"
 								rows="4"
 								placeholder="Escribe el mensaje que acompañará las flores"
 							></textarea>
 						</label>
-						<label
-							>Comentarios adicionales<textarea
+
+						<label>
+							Comentarios adicionales
+							<textarea
 								name="comentarios"
 								rows="4"
 								placeholder="Colores, horario u otra información importante"
 							></textarea>
 						</label>
-						<label class="checkbox-label"
-							><input type="checkbox" name="privacidad" required /><span
-								>He leído y acepto la política de privacidad.</span
-							></label
-						>
+
+						<label class="checkbox-label">
+							<input type="checkbox" name="privacidad" required />
+							<span>He leído y acepto la política de privacidad.</span>
+						</label>
+
 						<button class="form-button" type="submit">Enviar solicitud</button>
+
 						<p class="form-status" id="form-status" aria-live="polite"></p>
 					</form>
+
+					<script>
+						const orderForm = document.getElementById('order-form');
+						const fechaEntrega = document.getElementById('fecha-entrega');
+
+						// Exigir un mínimo de 48 horas de antelación
+						const ahora = new Date();
+						const fechaMinima = new Date(ahora);
+
+						fechaMinima.setHours(fechaMinima.getHours() + 48);
+
+						const minYear = fechaMinima.getFullYear();
+						const minMonth = String(fechaMinima.getMonth() + 1).padStart(
+							2,
+							'0'
+						);
+						const minDay = String(fechaMinima.getDate()).padStart(2, '0');
+
+						fechaEntrega.min = `${minYear}-${minMonth}-${minDay}`;
+
+						orderForm.addEventListener('submit', function (event) {
+							event.preventDefault();
+
+							if (!orderForm.checkValidity()) {
+								orderForm.reportValidity();
+								return;
+							}
+
+							const formData = new FormData(orderForm);
+
+							const nombre = formData.get('nombre');
+							const telefono = formData.get('telefono');
+							const email = formData.get('email');
+							const producto = formData.get('producto');
+							const cantidad = formData.get('cantidad');
+							const fecha = formData.get('fecha');
+							const destinatario = formData.get('destinatario');
+							const zona = formData.get('zona');
+							const direccion = formData.get('direccion');
+							const dedicatoria = formData.get('dedicatoria');
+							const comentarios = formData.get('comentarios');
+
+							// Convertir la fecha a formato dd/mm/aaaa
+							let fechaFormateada = fecha;
+
+							if (fecha) {
+								const [year, month, day] = fecha.split('-');
+								fechaFormateada = `${day}/${month}/${year}`;
+							}
+
+							const mensaje = `NUEVA SOLICITUD - THE FLOWERS BOX
+
+Nombre: ${nombre}
+Teléfono: ${telefono}
+Email: ${email}
+
+FLOWER BOX: ${producto}
+Cantidad de flores: ${cantidad}
+Fecha de entrega: ${fechaFormateada}
+
+Destinatario: ${destinatario}
+Zona de entrega: ${zona}
+Dirección: ${direccion}
+
+DEDICATORIA:
+${dedicatoria || 'Sin dedicatoria'}
+
+COMENTARIOS ADICIONALES:
+${comentarios || 'Sin comentarios'}
+
+Entrega en Tenerife Sur: GRATIS
+
+Solicitud enviada desde la web de The Flowers Box.`;
+
+							const numeroWhatsApp = '34678357373';
+
+							const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+
+							window.open(urlWhatsApp, '_blank');
+						});
+					</script>
 				</div>
 			</section>
 		</main>
