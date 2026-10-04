@@ -283,9 +283,7 @@
 						</article>
 					</div>
 					<p class="catalog-price-note">
-						* Los precios indicados corresponden a Flower Box con 25 rosas. Para
-						cantidades superiores o composiciones personalizadas, consúltanos
-						sin compromiso.
+						* Todas las Flower Box incluyen 25 flores · 75 €
 					</p>
 				</div>
 			</section>
@@ -414,20 +412,17 @@
 						<!-- ZONA Y DIRECCIÓN -->
 						<div class="form-row">
 							<label>
-								Zona de entrega
+	Zona de entrega
 
-								<select name="zona" required>
-									<option value="">Selecciona la zona</option>
-									<option>Adeje</option>
-									<option>Arona</option>
-									<option>Los Cristianos</option>
-									<option>Playa de las Américas</option>
-									<option>Costa Adeje</option>
-									<option>San Miguel de Abona</option>
-									<option>Granadilla de Abona</option>
-									<option>Otra zona de Tenerife Sur</option>
-								</select>
-							</label>
+	<select name="zona" required>
+		<option value="">Selecciona el municipio</option>
+		<option value="Arona">Arona</option>
+		<option value="Adeje">Adeje</option>
+		<option value="San Miguel de Abona">San Miguel de Abona</option>
+		<option value="Granadilla de Abona">Granadilla de Abona</option>
+		<option value="Guía de Isora">Guía de Isora</option>
+	</select>
+</label>
 
 							<label>
 								Dirección de entrega
@@ -470,166 +465,239 @@
 							<span> He leído y acepto la política de privacidad. </span>
 						</label>
 
+						<div class="order-summary">
+							<span class="order-summary-title">Tu pedido</span>
+
+							<div class="order-summary-row">
+								<span>Flower Box</span>
+								<strong id="summary-product">—</strong>
+							</div>
+
+							<div class="order-summary-row">
+								<span>Contenido</span>
+								<strong>25 flores</strong>
+							</div>
+
+							<div class="order-summary-row">
+								<span>Entrega en Tenerife Sur</span>
+								<strong>Gratis</strong>
+							</div>
+
+							<div class="order-summary-total">
+	<span>Total</span>
+	<strong id="summary-total">—</strong>
+</div>
+
 						<!-- BOTÓN -->
-						<button class="form-button" type="submit">Enviar solicitud</button>
+						<button
+	class="form-button"
+	type="submit"
+	id="payment-button"
+	disabled
+>
+	Selecciona una Flower Box
+</button>
 
 						<p class="form-status" id="form-status" aria-live="polite"></p>
 					</form>
+				</main>
 
 					<script>
-						const orderForm = document.getElementById('order-form');
-						const fechaEntrega = document.getElementById('fecha-entrega');
+const productoSelect = document.getElementById('producto');
+const summaryProduct = document.getElementById('summary-product');
+const summaryTotal = document.getElementById('summary-total');
+const paymentButton = document.getElementById('payment-button');
 
-						// ==================================================
-						// FECHA MÍNIMA DE ENTREGA: 24 HORAS
-						// ==================================================
+	// ==================================================
+	// RESUMEN DEL PEDIDO
+	// ==================================================
 
-						const ahora = new Date();
+	function actualizarResumenPedido() {
+	const producto = productoSelect.value;
 
-						const fechaMinima = new Date(ahora);
+	if (producto) {
+		summaryProduct.textContent = producto;
+		summaryTotal.textContent = '75 €';
 
-						fechaMinima.setHours(fechaMinima.getHours() + 24);
+		paymentButton.disabled = false;
+		paymentButton.textContent = 'Continuar al pago · 75 €';
+	} else {
+		summaryProduct.textContent = '—';
+		summaryTotal.textContent = '—';
 
-						const minYear = fechaMinima.getFullYear();
+		paymentButton.disabled = true;
+		paymentButton.textContent = 'Selecciona una Flower Box';
+	}
+}
 
-						const minMonth = String(fechaMinima.getMonth() + 1).padStart(
-							2,
-							'0'
-						);
+	productoSelect.addEventListener('change', actualizarResumenPedido);
 
-						const minDay = String(fechaMinima.getDate()).padStart(2, '0');
+	actualizarResumenPedido();
 
-						const fechaMinimaFormato = `${minYear}-${minMonth}-${minDay}`;
+	// ==================================================
+	// SELECCIONAR FLOWER BOX DESDE EL CATÁLOGO
+	// ==================================================
 
-						// Bloquea fechas anteriores
-						fechaEntrega.min = fechaMinimaFormato;
+	const productButtons = document.querySelectorAll('.product-button');
 
-						// ==================================================
-						// LIMPIAR ERRORES AL CAMBIAR LA FECHA
-						// ==================================================
+	productButtons.forEach((button) => {
+		button.addEventListener('click', function () {
+			const productCard = button.closest('.product-card');
 
-						fechaEntrega.addEventListener('input', function () {
-							this.setCustomValidity('');
-						});
+			if (!productCard) return;
 
-						// ==================================================
-						// VALIDAR FECHA DE ENTREGA
-						// ==================================================
+			const producto = productCard.dataset.product;
 
-						function validarFechaEntrega() {
-							// No hay fecha seleccionada
-							if (!fechaEntrega.value) {
-								fechaEntrega.setCustomValidity(
-									'Selecciona una fecha de entrega.'
-								);
+			if (!producto) return;
 
-								return false;
-							}
+			productoSelect.value = producto;
 
-							// Comprobar mínimo 24 horas
-							if (fechaEntrega.value < fechaMinimaFormato) {
-								fechaEntrega.setCustomValidity(
-									'El pedido debe realizarse con al menos 24 horas de antelación.'
-								);
+			actualizarResumenPedido();
 
-								return false;
-							}
+			document.getElementById('pedido').scrollIntoView({
+				behavior: 'smooth',
+				block: 'start'
+			});
+		});
+	});
 
-							// Convertimos la fecha YYYY-MM-DD
-							const [year, month, day] = fechaEntrega.value
-								.split('-')
-								.map(Number);
+	// ==================================================
+	// FECHA MÍNIMA DE ENTREGA: 24 HORAS
+	// ==================================================
 
-							const fechaSeleccionada = new Date(year, month - 1, day);
+	const ahora = new Date();
+	const fechaMinima = new Date(ahora);
 
-							// ==============================================
-							// BLOQUEAR DOMINGOS
-							// 0 = domingo
-							// ==============================================
+	fechaMinima.setHours(fechaMinima.getHours() + 24);
 
-							if (fechaSeleccionada.getDay() === 0) {
-								fechaEntrega.setCustomValidity(
-									'No realizamos entregas los domingos. Selecciona otro día.'
-								);
+	const minYear = fechaMinima.getFullYear();
 
-								return false;
-							}
+	const minMonth = String(
+		fechaMinima.getMonth() + 1
+	).padStart(2, '0');
 
-							fechaEntrega.setCustomValidity('');
+	const minDay = String(
+		fechaMinima.getDate()
+	).padStart(2, '0');
 
-							return true;
-						}
+	const fechaMinimaFormato =
+		`${minYear}-${minMonth}-${minDay}`;
 
-						// ==================================================
-						// ENVÍO DEL FORMULARIO
-						// ==================================================
+	fechaEntrega.min = fechaMinimaFormato;
 
-						orderForm.addEventListener('submit', function (event) {
-							event.preventDefault();
+	// ==================================================
+	// LIMPIAR ERRORES AL CAMBIAR LA FECHA
+	// ==================================================
 
-							// ==========================================
-							// VALIDAR FECHA
-							// ==========================================
+	fechaEntrega.addEventListener('input', function () {
+		this.setCustomValidity('');
+	});
 
-							if (!validarFechaEntrega()) {
-								fechaEntrega.reportValidity();
+	// ==================================================
+	// VALIDAR FECHA DE ENTREGA
+	// ==================================================
 
-								return;
-							}
+	function validarFechaEntrega() {
 
-							// ==========================================
-							// VALIDAR RESTO DEL FORMULARIO
-							// ==========================================
+		if (!fechaEntrega.value) {
+			fechaEntrega.setCustomValidity(
+				'Selecciona una fecha de entrega.'
+			);
 
-							if (!orderForm.checkValidity()) {
-								orderForm.reportValidity();
+			return false;
+		}
 
-								return;
-							}
+		if (fechaEntrega.value < fechaMinimaFormato) {
+			fechaEntrega.setCustomValidity(
+				'El pedido debe realizarse con al menos 24 horas de antelación.'
+			);
 
-							// ==========================================
-							// OBTENER DATOS
-							// ==========================================
+			return false;
+		}
 
-							const formData = new FormData(orderForm);
+		const [year, month, day] =
+			fechaEntrega.value.split('-').map(Number);
 
-							const nombre = formData.get('nombre');
+		const fechaSeleccionada =
+			new Date(year, month - 1, day);
 
-							const telefono = formData.get('telefono');
+		// 0 = domingo
+		if (fechaSeleccionada.getDay() === 0) {
+			fechaEntrega.setCustomValidity(
+				'No realizamos entregas los domingos. Selecciona otro día.'
+			);
 
-							const email = formData.get('email');
+			return false;
+		}
 
-							const producto = formData.get('producto');
+		fechaEntrega.setCustomValidity('');
 
-							const fecha = formData.get('fecha');
+		return true;
+	}
 
-							const destinatario = formData.get('destinatario');
+	// ==================================================
+	// ENVÍO DEL FORMULARIO
+	// TEMPORALMENTE POR WHATSAPP
+	// DESPUÉS SE SUSTITUIRÁ POR STRIPE
+	// ==================================================
 
-							const zona = formData.get('zona');
+	orderForm.addEventListener('submit', function (event) {
 
-							const direccion = formData.get('direccion');
+		event.preventDefault();
 
-							const dedicatoria = formData.get('dedicatoria');
+		// ==========================================
+		// VALIDAR FECHA
+		// ==========================================
 
-							const comentarios = formData.get('comentarios');
+		if (!validarFechaEntrega()) {
+			fechaEntrega.reportValidity();
+			return;
+		}
 
-							// ==========================================
-							// FORMATEAR FECHA
-							// ==========================================
+		// ==========================================
+		// VALIDAR RESTO DEL FORMULARIO
+		// ==========================================
 
-							let fechaFormateada = fecha;
+		if (!orderForm.checkValidity()) {
+			orderForm.reportValidity();
+			return;
+		}
 
-							if (fecha) {
-								const [year, month, day] = fecha.split('-');
+		// ==========================================
+		// OBTENER DATOS
+		// ==========================================
 
-								fechaFormateada = `${day}/${month}/${year}`;
-							}
+		const formData = new FormData(orderForm);
 
-							// ==========================================
-							// MENSAJE PARA WHATSAPP
-							// ==========================================
+		const nombre = formData.get('nombre');
+		const telefono = formData.get('telefono');
+		const email = formData.get('email');
+		const producto = formData.get('producto');
+		const fecha = formData.get('fecha');
+		const destinatario = formData.get('destinatario');
+		const zona = formData.get('zona');
+		const direccion = formData.get('direccion');
+		const dedicatoria = formData.get('dedicatoria');
+		const comentarios = formData.get('comentarios');
 
-							const mensaje = `NUEVA SOLICITUD - THE FLOWERS BOX
+		// ==========================================
+		// FORMATEAR FECHA
+		// ==========================================
+
+		let fechaFormateada = fecha;
+
+		if (fecha) {
+			const [year, month, day] = fecha.split('-');
+
+			fechaFormateada =
+				`${day}/${month}/${year}`;
+		}
+
+		// ==========================================
+		// MENSAJE PARA WHATSAPP
+		// ==========================================
+
+		const mensaje = `NUEVA SOLICITUD - THE FLOWERS BOX
 
 Nombre: ${nombre}
 Teléfono: ${telefono}
@@ -637,6 +705,7 @@ Email: ${email}
 
 FLOWER BOX: ${producto}
 Contenido: 25 flores
+Precio: 75 €
 Fecha de entrega: ${fechaFormateada}
 
 Destinatario: ${destinatario}
@@ -650,63 +719,69 @@ COMENTARIOS ADICIONALES:
 ${comentarios || 'Sin comentarios'}
 
 Entrega en Tenerife Sur: GRATIS
+TOTAL: 75 €
 
 Solicitud enviada desde la web de The Flowers Box.`;
 
-							// ==========================================
-							// ABRIR WHATSAPP
-							// ==========================================
+		// ==========================================
+		// ABRIR WHATSAPP
+		// ==========================================
 
-							const numeroWhatsApp = '34678357373';
+		const numeroWhatsApp = '34678357373';
 
-							const urlWhatsApp = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+		const urlWhatsApp =
+			`https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
 
-							window.open(urlWhatsApp, '_blank');
-						});
-					</script>
-				</div>
-			</section>
-		</main>
+		window.open(urlWhatsApp, '_blank');
+	});
+</script>
+<footer class="site-footer">
+	<div class="footer-inner">
+		<div class="footer-brand">
+			<a class="footer-logo" href="#inicio" aria-label="The Flowers Box">
+				<img
+					src="assets/images/logo-the-flowers-box.svg"
+					alt="The Flowers Box"
+				/>
+			</a>
 
-		<footer class="site-footer">
-			<div class="footer-inner">
-				<div class="footer-brand">
-					<a class="brand brand-footer" href="#inicio"
-						><span class="brand-the">The</span
-						><span class="brand-main">Flowers</span
-						><span class="brand-bottom">Box<span>✱</span></span></a
-					>
-					<p>
-						Cajas florales artesanales creadas en Tenerife para celebrar
-						momentos reales.
-					</p>
-				</div>
-				<div class="footer-column">
-					<h2>Navegación</h2>
-					<a href="#catalogo">Catálogo</a
-					><a href="#como-funciona">Cómo funciona</a
-					><a href="#pedido">Haz tu pedido</a>
-				</div>
-				<div class="footer-column">
-					<h2>Contacto</h2>
-					<a href="tel:+34678357373">+34 678 357 373</a
-					><a href="https://wa.me/34678357373">WhatsApp</a
-					><span>Tenerife Sur</span>
-				</div>
-				<div class="footer-column">
-					<h2>Información</h2>
-					<a href="#">Aviso legal</a><a href="#">Privacidad</a
-					><a href="#">Condiciones de compra</a>
-				</div>
-			</div>
-			<div class="footer-bottom">
-				© <span id="year"></span> The Flowers Box · Hecho con cariño en Tenerife
-			</div>
-		</footer>
+			<p>
+				Cajas florales artesanales creadas en Tenerife para celebrar
+				momentos reales.
+			</p>
+		</div>
 
-		<script src="script.js"></script>
-		const telefono = document.getElementById("telefono");
-		telefono.addEventListener("input", function () { this.value =
-		this.value.replace(/[^0-9+\s()-]/g, ""); });
+		<div class="footer-column">
+			<h2>Navegación</h2>
+			<a href="#catalogo">Catálogo</a>
+			<a href="#como-funciona">Cómo funciona</a>
+			<a href="#pedido">Haz tu pedido</a>
+		</div>
+
+		<div class="footer-column">
+			<h2>Contacto</h2>
+			<a href="tel:+34678357373">+34 678 357 373</a>
+			<a
+				href="https://wa.me/34678357373"
+				target="_blank"
+				rel="noopener"
+			>
+				WhatsApp
+			</a>
+			<span>Tenerife Sur</span>
+		</div>
+
+		<div class="footer-column">
+			<h2>Información</h2>
+			<a href="#">Aviso legal</a>
+			<a href="#">Privacidad</a>
+			<a href="#">Condiciones de compra</a>
+		</div>
+	</div>
+
+	<div class="footer-bottom">
+		© <span id="year"></span> The Flowers Box · Hecho con cariño en Tenerife
+	</div>
+</footer>
 	</body>
 </html>
