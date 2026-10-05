@@ -17,7 +17,7 @@
 		<link rel="stylesheet" href="styles.css" />
 	</head>
 	<body id="top">
-		<div class="topbar">
+			<div class="topbar">
 			<span>✱</span>
 			Entrega de flores en Tenerife Sur · Pedidos y consultas:
 			<a href="tel:+34678357373">+34 678 357 373</a>
@@ -60,6 +60,17 @@
 		</header>
 
 		<main>
+			<div class="payment-success" id="payment-success" hidden>
+	<div class="payment-success-content">
+		<span class="payment-success-icon">✓</span>
+		<h2>¡Pedido confirmado!</h2>
+		<p>
+			Hemos recibido correctamente tu pago y tu pedido.
+			Te hemos enviado un correo electrónico con la confirmación.
+		</p>
+		<a href="/" class="payment-success-button">Volver al inicio</a>
+	</div>
+</div>
 			<section class="hero" id="inicio">
 				<div class="hero-copy">
 					<div class="hero-copy-inner">
@@ -263,7 +274,7 @@
 								Elegir esta caja
 							</button>
 						</article>
-						<article class="product-card" data-product="Color Story">
+						<article class="product-card" data-product="Pink Harmony">
 							<div class="product-image">
 								<img
 									src="assets/images/flower_box_flores_mixtas_tenerife.png"
@@ -503,10 +514,13 @@
 				</main>
 
 					<script>
+const orderForm = document.getElementById('order-form');
+const fechaEntrega = document.getElementById('fecha-entrega');
 const productoSelect = document.getElementById('producto');
 const summaryProduct = document.getElementById('summary-product');
 const summaryTotal = document.getElementById('summary-total');
 const paymentButton = document.getElementById('payment-button');
+const formStatus = document.getElementById('form-status');
 
 	// ==================================================
 	// RESUMEN DEL PEDIDO
@@ -641,99 +655,114 @@ const paymentButton = document.getElementById('payment-button');
 	// DESPUÉS SE SUSTITUIRÁ POR STRIPE
 	// ==================================================
 
-	orderForm.addEventListener('submit', function (event) {
+	orderForm.addEventListener('submit', async function (event) {
+	event.preventDefault();
 
-		event.preventDefault();
+	if (!validarFechaEntrega()) {
+		fechaEntrega.reportValidity();
+		return;
+	}
 
-		// ==========================================
-		// VALIDAR FECHA
-		// ==========================================
+	if (!orderForm.checkValidity()) {
+		orderForm.reportValidity();
+		return;
+	}
 
-		if (!validarFechaEntrega()) {
-			fechaEntrega.reportValidity();
-			return;
+	const formData = new FormData(orderForm);
+
+	const datosPedido = {
+		nombre: formData.get('nombre'),
+		telefono: formData.get('telefono'),
+		email: formData.get('email'),
+		producto: formData.get('producto'),
+		fecha: formData.get('fecha'),
+		destinatario: formData.get('destinatario'),
+		zona: formData.get('zona'),
+		direccion: formData.get('direccion'),
+		dedicatoria: formData.get('dedicatoria'),
+		comentarios: formData.get('comentarios'),
+	};
+
+	try {
+		paymentButton.disabled = true;
+		paymentButton.textContent = 'Preparando pago...';
+
+		const response = await fetch('/api/create-checkout-session', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(datosPedido),
+		});
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			throw new Error(data.error || 'No se pudo iniciar el pago.');
 		}
 
-		// ==========================================
-		// VALIDAR RESTO DEL FORMULARIO
-		// ==========================================
-
-		if (!orderForm.checkValidity()) {
-			orderForm.reportValidity();
-			return;
+		if (!data.url) {
+			throw new Error('Stripe no devolvió una URL de pago.');
 		}
 
-		// ==========================================
-		// OBTENER DATOS
-		// ==========================================
+		window.location.href = data.url;
+	} catch (error) {
+		console.error(error);
 
-		const formData = new FormData(orderForm);
+		const formStatus = document.getElementById('form-status');
 
-		const nombre = formData.get('nombre');
-		const telefono = formData.get('telefono');
-		const email = formData.get('email');
-		const producto = formData.get('producto');
-		const fecha = formData.get('fecha');
-		const destinatario = formData.get('destinatario');
-		const zona = formData.get('zona');
-		const direccion = formData.get('direccion');
-		const dedicatoria = formData.get('dedicatoria');
-		const comentarios = formData.get('comentarios');
-
-		// ==========================================
-		// FORMATEAR FECHA
-		// ==========================================
-
-		let fechaFormateada = fecha;
-
-		if (fecha) {
-			const [year, month, day] = fecha.split('-');
-
-			fechaFormateada =
-				`${day}/${month}/${year}`;
+		if (formStatus) {
+			formStatus.textContent =
+				'No se pudo iniciar el pago. Inténtalo de nuevo.';
 		}
 
-		// ==========================================
-		// MENSAJE PARA WHATSAPP
-		// ==========================================
+		paymentButton.disabled = false;
+		paymentButton.textContent = 'Continuar al pago · 75 €';
+	}
+});
+// ==========================================
+// CONFIRMACIÓN DESPUÉS DEL PAGO
+// ==========================================
 
-		const mensaje = `NUEVA SOLICITUD - THE FLOWERS BOX
+const paymentSuccess = document.getElementById('payment-success');
+const paymentSuccessClose = document.getElementById('payment-success-close');
+const paymentSuccessButton = document.getElementById('payment-success-button');
 
-Nombre: ${nombre}
-Teléfono: ${telefono}
-Email: ${email}
+const urlParams = new URLSearchParams(window.location.search);
 
-FLOWER BOX: ${producto}
-Contenido: 25 flores
-Precio: 75 €
-Fecha de entrega: ${fechaFormateada}
+if (urlParams.get('pago') === 'correcto' && paymentSuccess) {
+	paymentSuccess.hidden = false;
+	document.body.style.overflow = 'hidden';
 
-Destinatario: ${destinatario}
-Zona de entrega: ${zona}
-Dirección: ${direccion}
+	window.history.replaceState(
+		{},
+		document.title,
+		window.location.pathname
+	);
+}
 
-DEDICATORIA:
-${dedicatoria || 'Sin dedicatoria'}
+function cerrarConfirmacionPago() {
+	if (!paymentSuccess) return;
 
-COMENTARIOS ADICIONALES:
-${comentarios || 'Sin comentarios'}
+	paymentSuccess.hidden = true;
+	document.body.style.overflow = '';
+}
 
-Entrega en Tenerife Sur: GRATIS
-TOTAL: 75 €
+if (paymentSuccessClose) {
+	paymentSuccessClose.addEventListener('click', cerrarConfirmacionPago);
+}
 
-Solicitud enviada desde la web de The Flowers Box.`;
+if (paymentSuccessButton) {
+	paymentSuccessButton.addEventListener('click', cerrarConfirmacionPago);
+}
 
-		// ==========================================
-		// ABRIR WHATSAPP
-		// ==========================================
-
-		const numeroWhatsApp = '34678357373';
-
-		const urlWhatsApp =
-			`https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
-
-		window.open(urlWhatsApp, '_blank');
+if (paymentSuccess) {
+	paymentSuccess.addEventListener('click', function (event) {
+		if (event.target === paymentSuccess) {
+			cerrarConfirmacionPago();
+		}
 	});
+}
 </script>
 <footer class="site-footer">
 	<div class="footer-inner">

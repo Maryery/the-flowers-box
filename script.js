@@ -37,3 +37,35 @@ brandLogo?.addEventListener("click", event => {
     behavior: "smooth"
   });
 });
+
+const paymentSuccess = document.getElementById('payment-success');
+const paymentSuccessClose = document.getElementById('payment-success-close');
+const paymentSuccessButton = document.getElementById('payment-success-button');
+
+const urlParams = new URLSearchParams(window.location.search);
+
+if (urlParams.get('pago') === 'correcto') {
+	paymentSuccess.hidden = false;
+	document.body.style.overflow = 'hidden';
+
+	// Eliminamos ?pago=correcto de la barra sin recargar la página
+	window.history.replaceState(
+		{},
+		document.title,
+		window.location.pathname
+	);
+}
+
+function cerrarConfirmacionPago() {
+	paymentSuccess.hidden = true;
+	document.body.style.overflow = '';
+}
+
+paymentSuccessClose.addEventListener('click', cerrarConfirmacionPago);
+paymentSuccessButton.addEventListener('click', cerrarConfirmacionPago);
+
+paymentSuccess.addEventListener('click', function (event) {
+	if (event.target === paymentSuccess) {
+		cerrarConfirmacionPago();
+	}
+});

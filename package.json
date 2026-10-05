@@ -1,0 +1,24 @@
+{
+  "name": "the_flowerbox_landing",
+  "version": "1.0.0",
+  "description": "Proyecto estático listo para abrir o publicar.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Maryery/the-flowers-box.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Maryery/the-flowers-box/issues"
+  },
+  "homepage": "https://github.com/Maryery/the-flowers-box#readme",
+  "dependencies": {
+    "nodemailer": "^10.0.15",
+    "stripe": "^23.0.0"
+  }
+}
