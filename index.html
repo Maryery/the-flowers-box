@@ -53,12 +53,19 @@
 						alt="The Flowers Box"
 					/>
 				</a>
+
 				<div class="header-right">
 					<span class="divider"></span>
 					<div class="language-switch" aria-label="Selector de idioma">
 						<button class="lang active" type="button">ES</button>
 						<span>|</span>
-						<button class="lang" type="button">EN</button>
+						<button
+							class="lang"
+							type="button"
+							onclick="window.location.href = '/index-en.html'"
+						>
+							EN
+						</button>
 					</div>
 				</div>
 			</div>
@@ -695,7 +702,10 @@
 						headers: {
 							'Content-Type': 'application/json',
 						},
-						body: JSON.stringify(datosPedido),
+						body: JSON.stringify({
+							...datosPedido,
+							idioma: document.documentElement.lang === 'en' ? 'en' : 'es',
+						}),
 					});
 
 					const data = await response.json();

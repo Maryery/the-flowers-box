@@ -56,13 +56,51 @@ async function enviarCorreosPedido(pedido) {
 	const dedicatoria = escaparHtml(pedido.dedicatoria);
 	const comentarios = escaparHtml(pedido.comentarios);
 
-	// 1. Confirmación para el cliente
-	await transporter.sendMail({
-		from: `"The Flowers Box" <${GMAIL_USER}>`,
-		to: pedido.email,
-		replyTo: GMAIL_USER,
-		subject: `Confirmación de tu pedido · ${pedido.producto}`,
-		html: `
+	// 1. Confirmación para el cliente en español o inglés
+	const ingles = pedido.idioma === 'en';
+
+	const asuntoCliente = ingles
+		? `Order confirmation · ${pedido.producto}`
+		: `Confirmación de tu pedido · ${pedido.producto}`;
+
+	const contenidoCliente = ingles
+		? `
+			<div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; color: #202018; line-height: 1.6;">
+				<h1 style="color: #F26B4F; font-size: 28px;">
+					Thank you for your order
+				</h1>
+
+				<p>Hello ${nombre},</p>
+
+				<p>
+					We have successfully received your payment
+					for your order at <strong>The Flowers Box</strong>.
+				</p>
+
+				<div style="background: #fffaf6; padding: 24px; margin: 24px 0; border-radius: 12px;">
+					<p><strong>Flower Box:</strong> ${producto}</p>
+					<p><strong>Contents:</strong> 25 flowers</p>
+					<p><strong>Delivery date:</strong> ${fecha}</p>
+					<p><strong>Recipient:</strong> ${destinatario}</p>
+					<p><strong>Delivery area:</strong> ${zona}</p>
+					<p><strong>Address:</strong> ${direccion}</p>
+					<p><strong>Delivery:</strong> Free</p>
+					<p><strong>Total paid:</strong> ${total}</p>
+				</div>
+
+				${dedicatoria ? `<p><strong>Gift message:</strong><br>${dedicatoria}</p>` : ''}
+
+				<p>
+					We will carefully prepare your Flower Box
+					with selected fresh flowers and attention to every detail.
+				</p>
+
+				<p>
+					Thank you for choosing <strong>The Flowers Box</strong>.
+				</p>
+			</div>
+		`
+		: `
 			<div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; color: #202018; line-height: 1.6;">
 				<h1 style="color: #F26B4F; font-size: 28px;">
 					Gracias por tu pedido
@@ -97,7 +135,14 @@ async function enviarCorreosPedido(pedido) {
 					Gracias por confiar en <strong>The Flowers Box</strong>.
 				</p>
 			</div>
-		`,
+		`;
+
+	await transporter.sendMail({
+		from: `"The Flowers Box" <${GMAIL_USER}>`,
+		to: pedido.email,
+		replyTo: GMAIL_USER,
+		subject: asuntoCliente,
+		html: contenidoCliente,
 	});
 
 	// 2. Aviso completo para The Flowers Box
@@ -180,6 +225,7 @@ export async function POST(request) {
 				const pedido = {
 					sessionId: session.id,
 					paymentIntent: session.payment_intent,
+					idioma: session.metadata?.idioma === 'en' ? 'en' : 'es',
 					email: session.customer_details?.email || '',
 					nombre: session.metadata?.nombre || '',
 					telefono: session.metadata?.telefono || '',

@@ -37,6 +37,7 @@ module.exports = async function handler(req, res) {
 			direccion,
 			dedicatoria,
 			comentarios,
+			idioma,
 		} = req.body;
 
 		// Comprobamos los campos obligatorios
@@ -113,8 +114,11 @@ module.exports = async function handler(req, res) {
 		 * Stripe utiliza exclusivamente PRICE_ID, correspondiente
 		 * a la Flower Box de 25 flores por 75 €.
 		 */
+
 		const session = await stripe.checkout.sessions.create({
 			mode: 'payment',
+
+			locale: idioma === 'en' ? 'en' : 'es',
 
 			line_items: [
 				{
@@ -130,6 +134,7 @@ module.exports = async function handler(req, res) {
 			 * únicamente después de que Stripe confirme el pago.
 			 */
 			metadata: {
+				idioma: idioma === 'en' ? 'en' : 'es',
 				nombre: String(nombre).slice(0, 500),
 				telefono: String(telefono).slice(0, 500),
 				producto: String(producto).slice(0, 500),
@@ -141,8 +146,8 @@ module.exports = async function handler(req, res) {
 				comentarios: String(comentarios || '').slice(0, 500),
 			},
 
-			success_url: `${req.headers.origin}/?pago=correcto`,
-			cancel_url: `${req.headers.origin}/#pedido`,
+			success_url: `${req.headers.origin}/${idioma === 'en' ? 'index-en.html' : ''}?pago=correcto`,
+			cancel_url: `${req.headers.origin}/${idioma === 'en' ? 'index-en.html' : ''}#pedido`,
 		});
 
 		return res.status(200).json({
