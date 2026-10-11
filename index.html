@@ -17,7 +17,7 @@
 		<link rel="stylesheet" href="styles.css" />
 	</head>
 	<body id="top">
-			<div class="topbar">
+		<div class="topbar">
 			<span>✱</span>
 			Entrega de flores en Tenerife Sur · Pedidos y consultas:
 			<a href="tel:+34678357373">+34 678 357 373</a>
@@ -30,11 +30,16 @@
 					class="menu-toggle"
 					type="button"
 					aria-label="Abrir menú"
+					aria-controls="mobile-menu"
 					aria-expanded="false"
 				>
 					☰
 				</button>
-				<nav class="main-nav">
+				<nav
+					class="main-nav"
+					id="mobile-menu"
+					aria-label="Navegación principal"
+				>
 					<a href="#catalogo">CATÁLOGO</a>
 					<a href="#pedido" class="pedido-link">HAZ TU PEDIDO</a>
 				</nav>
@@ -61,16 +66,16 @@
 
 		<main>
 			<div class="payment-success" id="payment-success" hidden>
-	<div class="payment-success-content">
-		<span class="payment-success-icon">✓</span>
-		<h2>¡Pedido confirmado!</h2>
-		<p>
-			Hemos recibido correctamente tu pago y tu pedido.
-			Te hemos enviado un correo electrónico con la confirmación.
-		</p>
-		<a href="/" class="payment-success-button">Volver al inicio</a>
-	</div>
-</div>
+				<div class="payment-success-content">
+					<span class="payment-success-icon">✓</span>
+					<h2>¡Pedido confirmado!</h2>
+					<p>
+						Hemos recibido correctamente tu pago y tu pedido. Te hemos enviado
+						un correo electrónico con la confirmación.
+					</p>
+					<a href="/" class="payment-success-button">Volver al inicio</a>
+				</div>
+			</div>
 			<section class="hero" id="inicio">
 				<div class="hero-copy">
 					<div class="hero-copy-inner">
@@ -423,17 +428,21 @@
 						<!-- ZONA Y DIRECCIÓN -->
 						<div class="form-row">
 							<label>
-	Zona de entrega
+								Zona de entrega
 
-	<select name="zona" required>
-		<option value="">Selecciona el municipio</option>
-		<option value="Arona">Arona</option>
-		<option value="Adeje">Adeje</option>
-		<option value="San Miguel de Abona">San Miguel de Abona</option>
-		<option value="Granadilla de Abona">Granadilla de Abona</option>
-		<option value="Guía de Isora">Guía de Isora</option>
-	</select>
-</label>
+								<select name="zona" required>
+									<option value="">Selecciona el municipio</option>
+									<option value="Arona">Arona</option>
+									<option value="Adeje">Adeje</option>
+									<option value="San Miguel de Abona">
+										San Miguel de Abona
+									</option>
+									<option value="Granadilla de Abona">
+										Granadilla de Abona
+									</option>
+									<option value="Guía de Isora">Guía de Isora</option>
+								</select>
+							</label>
 
 							<label>
 								Dirección de entrega
@@ -470,11 +479,11 @@
 						</label>
 
 						<!-- PRIVACIDAD -->
-						<label class="checkbox-label">
+						<!--<label class="checkbox-label">
 							<input type="checkbox" name="privacidad" required />
 
 							<span> He leído y acepto la política de privacidad. </span>
-						</label>
+						</label>-->
 
 						<div class="order-summary">
 							<span class="order-summary-title">Tu pedido</span>
@@ -495,322 +504,387 @@
 							</div>
 
 							<div class="order-summary-total">
-	<span>Total</span>
-	<strong id="summary-total">—</strong>
-</div>
+								<span>Total</span>
+								<strong id="summary-total">—</strong>
+							</div>
+						</div>
 
 						<!-- BOTÓN -->
+
 						<button
-	class="form-button"
-	type="submit"
-	id="payment-button"
-	disabled
->
-	Selecciona una Flower Box
-</button>
+							class="form-button"
+							type="submit"
+							id="payment-button"
+							disabled
+						>
+							Selecciona una Flower Box
+						</button>
 
 						<p class="form-status" id="form-status" aria-live="polite"></p>
 					</form>
-				</main>
+				</div>
+			</section>
+		</main>
 
-					<script>
-const orderForm = document.getElementById('order-form');
-const fechaEntrega = document.getElementById('fecha-entrega');
-const productoSelect = document.getElementById('producto');
-const summaryProduct = document.getElementById('summary-product');
-const summaryTotal = document.getElementById('summary-total');
-const paymentButton = document.getElementById('payment-button');
-const formStatus = document.getElementById('form-status');
+		<script>
+			const orderForm = document.getElementById('order-form');
+			const fechaEntrega = document.getElementById('fecha-entrega');
+			const productoSelect = document.getElementById('producto');
+			const summaryProduct = document.getElementById('summary-product');
+			const summaryTotal = document.getElementById('summary-total');
+			const paymentButton = document.getElementById('payment-button');
+			const formStatus = document.getElementById('form-status');
 
-	// ==================================================
-	// RESUMEN DEL PEDIDO
-	// ==================================================
+			// ==================================================
+			// RESUMEN DEL PEDIDO
+			// ==================================================
 
-	function actualizarResumenPedido() {
-	const producto = productoSelect.value;
+			function actualizarResumenPedido() {
+				const producto = productoSelect.value;
 
-	if (producto) {
-		summaryProduct.textContent = producto;
-		summaryTotal.textContent = '75 €';
+				if (producto) {
+					summaryProduct.textContent = producto;
+					summaryTotal.textContent = '75 €';
 
-		paymentButton.disabled = false;
-		paymentButton.textContent = 'Continuar al pago · 75 €';
-	} else {
-		summaryProduct.textContent = '—';
-		summaryTotal.textContent = '—';
+					paymentButton.disabled = false;
+					paymentButton.textContent = 'Continuar al pago · 75 €';
+				} else {
+					summaryProduct.textContent = '—';
+					summaryTotal.textContent = '—';
 
-		paymentButton.disabled = true;
-		paymentButton.textContent = 'Selecciona una Flower Box';
-	}
-}
+					paymentButton.disabled = true;
+					paymentButton.textContent = 'Selecciona una Flower Box';
+				}
+			}
 
-	productoSelect.addEventListener('change', actualizarResumenPedido);
-
-	actualizarResumenPedido();
-
-	// ==================================================
-	// SELECCIONAR FLOWER BOX DESDE EL CATÁLOGO
-	// ==================================================
-
-	const productButtons = document.querySelectorAll('.product-button');
-
-	productButtons.forEach((button) => {
-		button.addEventListener('click', function () {
-			const productCard = button.closest('.product-card');
-
-			if (!productCard) return;
-
-			const producto = productCard.dataset.product;
-
-			if (!producto) return;
-
-			productoSelect.value = producto;
+			productoSelect.addEventListener('change', actualizarResumenPedido);
 
 			actualizarResumenPedido();
 
-			document.getElementById('pedido').scrollIntoView({
-				behavior: 'smooth',
-				block: 'start'
+			// ==================================================
+			// SELECCIONAR FLOWER BOX DESDE EL CATÁLOGO
+			// ==================================================
+
+			const productButtons = document.querySelectorAll('.product-button');
+
+			productButtons.forEach((button) => {
+				button.addEventListener('click', function () {
+					const productCard = button.closest('.product-card');
+
+					if (!productCard) return;
+
+					const producto = productCard.dataset.product;
+
+					if (!producto) return;
+
+					productoSelect.value = producto;
+
+					actualizarResumenPedido();
+
+					document.getElementById('pedido').scrollIntoView({
+						behavior: 'smooth',
+						block: 'start',
+					});
+				});
 			});
-		});
-	});
 
-	// ==================================================
-	// FECHA MÍNIMA DE ENTREGA: 24 HORAS
-	// ==================================================
+			// ==================================================
+			// FECHA MÍNIMA DE ENTREGA: 24 HORAS
+			// ==================================================
 
-	const ahora = new Date();
-	const fechaMinima = new Date(ahora);
+			const ahora = new Date();
+			const fechaMinima = new Date(ahora);
 
-	fechaMinima.setHours(fechaMinima.getHours() + 24);
+			fechaMinima.setHours(fechaMinima.getHours() + 24);
 
-	const minYear = fechaMinima.getFullYear();
+			const minYear = fechaMinima.getFullYear();
 
-	const minMonth = String(
-		fechaMinima.getMonth() + 1
-	).padStart(2, '0');
+			const minMonth = String(fechaMinima.getMonth() + 1).padStart(2, '0');
 
-	const minDay = String(
-		fechaMinima.getDate()
-	).padStart(2, '0');
+			const minDay = String(fechaMinima.getDate()).padStart(2, '0');
 
-	const fechaMinimaFormato =
-		`${minYear}-${minMonth}-${minDay}`;
+			const fechaMinimaFormato = `${minYear}-${minMonth}-${minDay}`;
 
-	fechaEntrega.min = fechaMinimaFormato;
+			fechaEntrega.min = fechaMinimaFormato;
 
-	// ==================================================
-	// LIMPIAR ERRORES AL CAMBIAR LA FECHA
-	// ==================================================
+			// ==================================================
+			// LIMPIAR ERRORES AL CAMBIAR LA FECHA
+			// ==================================================
 
-	fechaEntrega.addEventListener('input', function () {
-		this.setCustomValidity('');
-	});
+			fechaEntrega.addEventListener('input', function () {
+				this.setCustomValidity('');
+			});
 
-	// ==================================================
-	// VALIDAR FECHA DE ENTREGA
-	// ==================================================
+			// ==================================================
+			// VALIDAR FECHA DE ENTREGA
+			// ==================================================
 
-	function validarFechaEntrega() {
+			function validarFechaEntrega() {
+				if (!fechaEntrega.value) {
+					fechaEntrega.setCustomValidity('Selecciona una fecha de entrega.');
 
-		if (!fechaEntrega.value) {
-			fechaEntrega.setCustomValidity(
-				'Selecciona una fecha de entrega.'
+					return false;
+				}
+
+				if (fechaEntrega.value < fechaMinimaFormato) {
+					fechaEntrega.setCustomValidity(
+						'El pedido debe realizarse con al menos 24 horas de antelación.'
+					);
+
+					return false;
+				}
+
+				const [year, month, day] = fechaEntrega.value.split('-').map(Number);
+
+				const fechaSeleccionada = new Date(year, month - 1, day);
+
+				// 0 = domingo
+				if (fechaSeleccionada.getDay() === 0) {
+					fechaEntrega.setCustomValidity(
+						'No realizamos entregas los domingos. Selecciona otro día.'
+					);
+
+					return false;
+				}
+
+				fechaEntrega.setCustomValidity('');
+
+				return true;
+			}
+
+			// ==================================================
+			// ENVÍO DEL FORMULARIO
+			// TEMPORALMENTE POR WHATSAPP
+			// DESPUÉS SE SUSTITUIRÁ POR STRIPE
+			// ==================================================
+
+			orderForm.addEventListener('submit', async function (event) {
+				event.preventDefault();
+
+				if (!validarFechaEntrega()) {
+					fechaEntrega.reportValidity();
+					return;
+				}
+
+				if (!orderForm.checkValidity()) {
+					orderForm.reportValidity();
+					return;
+				}
+
+				const formData = new FormData(orderForm);
+
+				const datosPedido = {
+					nombre: formData.get('nombre'),
+					telefono: formData.get('telefono'),
+					email: formData.get('email'),
+					producto: formData.get('producto'),
+					fecha: formData.get('fecha'),
+					destinatario: formData.get('destinatario'),
+					zona: formData.get('zona'),
+					direccion: formData.get('direccion'),
+					dedicatoria: formData.get('dedicatoria'),
+					comentarios: formData.get('comentarios'),
+				};
+
+				try {
+					paymentButton.disabled = true;
+					paymentButton.textContent = 'Preparando pago...';
+
+					const response = await fetch('/api/create-checkout-session', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(datosPedido),
+					});
+
+					const data = await response.json();
+
+					if (!response.ok) {
+						throw new Error(data.error || 'No se pudo iniciar el pago.');
+					}
+
+					if (!data.url) {
+						throw new Error('Stripe no devolvió una URL de pago.');
+					}
+
+					window.location.href = data.url;
+				} catch (error) {
+					console.error(error);
+
+					const formStatus = document.getElementById('form-status');
+
+					if (formStatus) {
+						formStatus.textContent =
+							'No se pudo iniciar el pago. Inténtalo de nuevo.';
+					}
+
+					paymentButton.disabled = false;
+					paymentButton.textContent = 'Continuar al pago · 75 €';
+				}
+			});
+			// ==========================================
+			// CONFIRMACIÓN DESPUÉS DEL PAGO
+			// ==========================================
+
+			const paymentSuccess = document.getElementById('payment-success');
+			const paymentSuccessClose = document.getElementById(
+				'payment-success-close'
+			);
+			const paymentSuccessButton = document.getElementById(
+				'payment-success-button'
 			);
 
-			return false;
-		}
+			const urlParams = new URLSearchParams(window.location.search);
 
-		if (fechaEntrega.value < fechaMinimaFormato) {
-			fechaEntrega.setCustomValidity(
-				'El pedido debe realizarse con al menos 24 horas de antelación.'
-			);
+			if (urlParams.get('pago') === 'correcto' && paymentSuccess) {
+				paymentSuccess.hidden = false;
+				document.body.style.overflow = 'hidden';
 
-			return false;
-		}
+				window.history.replaceState(
+					{},
+					document.title,
+					window.location.pathname
+				);
+			}
 
-		const [year, month, day] =
-			fechaEntrega.value.split('-').map(Number);
+			function cerrarConfirmacionPago() {
+				if (!paymentSuccess) return;
 
-		const fechaSeleccionada =
-			new Date(year, month - 1, day);
+				paymentSuccess.hidden = true;
+				document.body.style.overflow = '';
+			}
 
-		// 0 = domingo
-		if (fechaSeleccionada.getDay() === 0) {
-			fechaEntrega.setCustomValidity(
-				'No realizamos entregas los domingos. Selecciona otro día.'
-			);
+			if (paymentSuccessClose) {
+				paymentSuccessClose.addEventListener('click', cerrarConfirmacionPago);
+			}
 
-			return false;
-		}
+			if (paymentSuccessButton) {
+				paymentSuccessButton.addEventListener('click', cerrarConfirmacionPago);
+			}
 
-		fechaEntrega.setCustomValidity('');
+			if (paymentSuccess) {
+				paymentSuccess.addEventListener('click', function (event) {
+					if (event.target === paymentSuccess) {
+						cerrarConfirmacionPago();
+					}
+				});
+			}
 
-		return true;
-	}
+			// ==========================================
+			// MENÚ MÓVIL
+			// ==========================================
 
-	// ==================================================
-	// ENVÍO DEL FORMULARIO
-	// TEMPORALMENTE POR WHATSAPP
-	// DESPUÉS SE SUSTITUIRÁ POR STRIPE
-	// ==================================================
+			const botonMenuMovil = document.querySelector('.menu-toggle');
+			const navegacionMovil = document.getElementById('mobile-menu');
 
-	orderForm.addEventListener('submit', async function (event) {
-	event.preventDefault();
+			if (botonMenuMovil && navegacionMovil) {
+				botonMenuMovil.addEventListener('click', function () {
+					const abierto =
+						botonMenuMovil.getAttribute('aria-expanded') === 'true';
 
-	if (!validarFechaEntrega()) {
-		fechaEntrega.reportValidity();
-		return;
-	}
+					navegacionMovil.classList.toggle('is-open', !abierto);
 
-	if (!orderForm.checkValidity()) {
-		orderForm.reportValidity();
-		return;
-	}
+					botonMenuMovil.setAttribute('aria-expanded', String(!abierto));
+					botonMenuMovil.setAttribute(
+						'aria-label',
+						abierto ? 'Abrir menú' : 'Cerrar menú'
+					);
+				});
 
-	const formData = new FormData(orderForm);
+				navegacionMovil.querySelectorAll('a').forEach(function (enlace) {
+					enlace.addEventListener('click', function (event) {
+						const destino = enlace.getAttribute('href');
 
-	const datosPedido = {
-		nombre: formData.get('nombre'),
-		telefono: formData.get('telefono'),
-		email: formData.get('email'),
-		producto: formData.get('producto'),
-		fecha: formData.get('fecha'),
-		destinatario: formData.get('destinatario'),
-		zona: formData.get('zona'),
-		direccion: formData.get('direccion'),
-		dedicatoria: formData.get('dedicatoria'),
-		comentarios: formData.get('comentarios'),
-	};
+						if (!destino || !destino.startsWith('#')) return;
 
-	try {
-		paymentButton.disabled = true;
-		paymentButton.textContent = 'Preparando pago...';
+						const seccion = document.querySelector(destino);
+						if (!seccion) return;
 
-		const response = await fetch('/api/create-checkout-session', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(datosPedido),
-		});
+						event.preventDefault();
 
-		const data = await response.json();
+						navegacionMovil.classList.remove('is-open');
+						botonMenuMovil.setAttribute('aria-expanded', 'false');
+						botonMenuMovil.setAttribute('aria-label', 'Abrir menú');
 
-		if (!response.ok) {
-			throw new Error(data.error || 'No se pudo iniciar el pago.');
-		}
+						seccion.scrollIntoView({
+							behavior: 'smooth',
+							block: 'start',
+						});
+					});
+				});
+			}
+		</script>
+		<footer class="site-footer">
+			<div class="footer-inner">
+				<div class="footer-brand">
+					<a class="footer-logo" href="#inicio" aria-label="The Flowers Box">
+						<img
+							src="assets/images/logo-the-flowers-box.svg"
+							alt="The Flowers Box"
+						/>
+					</a>
 
-		if (!data.url) {
-			throw new Error('Stripe no devolvió una URL de pago.');
-		}
+					<p>
+						Cajas florales artesanales creadas en Tenerife para celebrar
+						momentos reales.
+					</p>
+				</div>
 
-		window.location.href = data.url;
-	} catch (error) {
-		console.error(error);
+				<div class="footer-column">
+					<h2>Navegación</h2>
+					<a href="#catalogo">Catálogo</a>
+					<a href="#como-funciona">Cómo funciona</a>
+					<a href="#pedido">Haz tu pedido</a>
+				</div>
 
-		const formStatus = document.getElementById('form-status');
+				<div class="footer-column">
+					<h2>Contacto</h2>
+					<a href="tel:+34678357373">+34 678 357 373</a>
+					<a href="https://wa.me/34678357373" target="_blank" rel="noopener">
+						WhatsApp
+					</a>
 
-		if (formStatus) {
-			formStatus.textContent =
-				'No se pudo iniciar el pago. Inténtalo de nuevo.';
-		}
+					<a
+						href="https://www.instagram.com/the_flowersbox/"
+						class="footer-instagram"
+						target="_blank"
+						rel="noopener noreferrer"
+						aria-label="Instagram de The Flowers Box"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.8"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<rect x="2" y="2" width="20" height="20" rx="5" />
+							<circle cx="12" cy="12" r="4" />
+							<circle cx="17.5" cy="6.5" r="1" />
+						</svg>
+						<span>@the_flowersbox</span>
+					</a>
 
-		paymentButton.disabled = false;
-		paymentButton.textContent = 'Continuar al pago · 75 €';
-	}
-});
-// ==========================================
-// CONFIRMACIÓN DESPUÉS DEL PAGO
-// ==========================================
+					<span>Tenerife Sur</span>
+				</div>
 
-const paymentSuccess = document.getElementById('payment-success');
-const paymentSuccessClose = document.getElementById('payment-success-close');
-const paymentSuccessButton = document.getElementById('payment-success-button');
+				<!--<div class="footer-column">
+					<h2>Información</h2>
+					<a href="#">Aviso legal</a>
+					<a href="#">Privacidad</a>
+					<a href="#">Condiciones de compra</a>
+				</div>-->
+			</div>
 
-const urlParams = new URLSearchParams(window.location.search);
-
-if (urlParams.get('pago') === 'correcto' && paymentSuccess) {
-	paymentSuccess.hidden = false;
-	document.body.style.overflow = 'hidden';
-
-	window.history.replaceState(
-		{},
-		document.title,
-		window.location.pathname
-	);
-}
-
-function cerrarConfirmacionPago() {
-	if (!paymentSuccess) return;
-
-	paymentSuccess.hidden = true;
-	document.body.style.overflow = '';
-}
-
-if (paymentSuccessClose) {
-	paymentSuccessClose.addEventListener('click', cerrarConfirmacionPago);
-}
-
-if (paymentSuccessButton) {
-	paymentSuccessButton.addEventListener('click', cerrarConfirmacionPago);
-}
-
-if (paymentSuccess) {
-	paymentSuccess.addEventListener('click', function (event) {
-		if (event.target === paymentSuccess) {
-			cerrarConfirmacionPago();
-		}
-	});
-}
-</script>
-<footer class="site-footer">
-	<div class="footer-inner">
-		<div class="footer-brand">
-			<a class="footer-logo" href="#inicio" aria-label="The Flowers Box">
-				<img
-					src="assets/images/logo-the-flowers-box.svg"
-					alt="The Flowers Box"
-				/>
-			</a>
-
-			<p>
-				Cajas florales artesanales creadas en Tenerife para celebrar
-				momentos reales.
-			</p>
-		</div>
-
-		<div class="footer-column">
-			<h2>Navegación</h2>
-			<a href="#catalogo">Catálogo</a>
-			<a href="#como-funciona">Cómo funciona</a>
-			<a href="#pedido">Haz tu pedido</a>
-		</div>
-
-		<div class="footer-column">
-			<h2>Contacto</h2>
-			<a href="tel:+34678357373">+34 678 357 373</a>
-			<a
-				href="https://wa.me/34678357373"
-				target="_blank"
-				rel="noopener"
-			>
-				WhatsApp
-			</a>
-			<span>Tenerife Sur</span>
-		</div>
-
-		<div class="footer-column">
-			<h2>Información</h2>
-			<a href="#">Aviso legal</a>
-			<a href="#">Privacidad</a>
-			<a href="#">Condiciones de compra</a>
-		</div>
-	</div>
-
-	<div class="footer-bottom">
-		© <span id="year"></span> The Flowers Box · Hecho con cariño en Tenerife
-	</div>
-</footer>
+			<div class="footer-bottom">
+				© 2026 The Flowers Box · Hecho con cariño en Tenerife
+			</div>
+		</footer>
 	</body>
 </html>

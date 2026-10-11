@@ -497,7 +497,7 @@ button {
 	color: #fff;
 }
 .order-section {
-	padding: 50px 0 120px;
+	padding: 50px 0 55px;
 	background: var(--cream);
 }
 
@@ -1042,7 +1042,7 @@ textarea:focus {
 		grid-template-columns: 1fr;
 	}
 	.order-section {
-		padding: 64px 0 78px;
+		padding: 64px 0 35px;
 	}
 
 	#pedido {
@@ -1055,6 +1055,20 @@ textarea:focus {
 	.order-copy {
 		position: static;
 	}
+	.order-copy h2 {
+		color: var(--coral);
+		font-family: 'DM Serif Display', serif;
+		font-size: clamp(38px, 7vw, 56px);
+		font-weight: 400;
+		line-height: 1.05;
+		letter-spacing: -0.03em;
+		margin: 16px 0 24px;
+	}
+
+	.order-copy h2 span {
+		color: var(--pink);
+	}
+
 	.order-form {
 		padding: 30px 22px;
 	}
@@ -1125,10 +1139,17 @@ textarea:focus {
 		flex-direction: column;
 		gap: 10px;
 	}
+
 	.footer-inner {
-		width: min(100% - 24px, 1320px);
-		grid-template-columns: 1fr;
+		width: min(1200px, calc(100% - 64px));
+		margin: auto;
+		padding: 30px 0 25px;
+		display: grid;
+		grid-template-columns: 1.4fr 1fr 1fr;
+		gap: 60px;
+		align-items: start;
 	}
+
 	.footer-brand,
 	.footer-column:last-child {
 		grid-column: auto;
@@ -1403,5 +1424,487 @@ textarea:focus {
 
 	.payment-success-content h2 {
 		font-size: 34px;
+	}
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+	/* HERO */
+
+	.hero {
+		grid-template-columns: 1fr;
+	}
+
+	.hero-copy {
+		padding: 60px 32px;
+	}
+
+	.hero-copy-inner {
+		max-width: 100%;
+	}
+
+	.hero h1 {
+		font-size: clamp(52px, 9vw, 72px);
+		line-height: 0.94;
+	}
+
+	.hero-last-line {
+		white-space: normal;
+	}
+
+	.hero-image {
+		min-height: 520px;
+	}
+
+	/* BENEFICIOS */
+
+	.benefits-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.benefit-card:nth-child(2) {
+		border-right: 0;
+	}
+
+	.benefit-card:nth-child(-n + 2) {
+		border-bottom: 1px solid var(--line);
+	}
+
+	/* SECCIONES */
+
+	.section {
+		padding: 90px 0;
+	}
+
+	.section-container {
+		width: min(100% - 48px, 1320px);
+	}
+
+	.section-heading {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 24px;
+	}
+
+	/* CATÁLOGO */
+
+	.products-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 36px 24px;
+	}
+
+	/* PEDIDO */
+
+	.order-grid {
+		grid-template-columns: 1fr;
+		gap: 50px;
+	}
+
+	.order-copy {
+		position: static;
+	}
+
+	/* FOOTER */
+
+	.footer-inner {
+		width: min(100% - 48px, 1320px);
+		grid-template-columns: repeat(2, 1fr);
+		gap: 45px;
+	}
+}
+
+@media (max-width: 600px) {
+	/* Evita desbordamientos horizontales */
+	html,
+	body {
+		max-width: 100%;
+		overflow-x: hidden;
+	}
+
+	/* HERO */
+	.hero {
+		display: block;
+	}
+
+	.hero-copy {
+		display: block;
+		padding: 34px 22px 48px;
+	}
+
+	.hero h1 {
+		font-size: clamp(40px, 11.5vw, 52px);
+		line-height: 0.94;
+		letter-spacing: -0.045em;
+	}
+
+	.hero-last-line {
+		white-space: normal;
+	}
+
+	.hero p {
+		margin: 24px 0 28px;
+		font-size: 12px;
+		line-height: 1.55;
+		letter-spacing: 0.07em;
+	}
+
+	.primary-button {
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+
+	.hero-image {
+		width: 100%;
+		min-height: 400px;
+	}
+
+	.hero-image img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	/* BENEFICIOS */
+	.benefits-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.benefit-card {
+		padding: 25px 24px;
+		grid-template-columns: 55px 1fr;
+		gap: 18px;
+		border-right: 0;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.benefit-card:last-child {
+		border-bottom: 0;
+	}
+
+	.benefit-icon {
+		width: 50px;
+		height: 50px;
+	}
+
+	.message-strip {
+		padding: 20px 22px;
+		font-size: 11px;
+		line-height: 1.6;
+		letter-spacing: 0.14em;
+	}
+
+	.message-strip span {
+		margin-left: 7px;
+		font-size: 19px;
+	}
+
+	/* CONTENEDORES */
+	.section {
+		padding: 70px 0;
+	}
+
+	.section-container {
+		width: calc(100% - 40px);
+	}
+
+	.section-heading {
+		margin-bottom: 38px;
+		gap: 20px;
+	}
+
+	.section-heading h2 {
+		font-size: clamp(42px, 12vw, 56px);
+		line-height: 1;
+	}
+
+	.section-heading > p {
+		font-size: 15px;
+		line-height: 1.6;
+	}
+
+	/* CATÁLOGO */
+	.catalog.section {
+		padding-top: 70px;
+	}
+
+	.products-grid {
+		grid-template-columns: 1fr;
+		gap: 45px;
+	}
+
+	.product-info {
+		column-gap: 16px;
+	}
+
+	.product-info h3 {
+		font-size: 25px;
+	}
+
+	/* PEDIDO */
+	.order-section {
+		padding: 50px 0 70px;
+	}
+
+	.order-grid {
+		grid-template-columns: 1fr;
+		gap: 32px;
+	}
+
+	.order-copy {
+		position: static;
+	}
+
+	.order-copy .eyebrow {
+		margin-bottom: 12px;
+	}
+
+	.order-copy h2 {
+		margin: 0 0 18px;
+		color: var(--coral);
+		font-family: 'DM Serif Display', serif;
+		font-size: clamp(36px, 9vw, 44px);
+		font-weight: 400;
+		line-height: 1.08;
+		letter-spacing: -0.03em;
+	}
+
+	.order-copy h2 span {
+		color: var(--pink);
+	}
+
+	.order-copy > p {
+		margin: 0 0 24px;
+		font-size: 15px;
+		line-height: 1.6;
+		color: var(--muted);
+	}
+
+	.whatsapp-button {
+		width: 100%;
+		box-sizing: border-box;
+		justify-content: center;
+	}
+
+	.order-form {
+		width: 100%;
+		box-sizing: border-box;
+		padding: 30px 20px;
+	}
+
+	.form-row {
+		grid-template-columns: 1fr;
+		gap: 0;
+	}
+
+	input,
+	select,
+	textarea {
+		box-sizing: border-box;
+	}
+
+	/* FOOTER */
+	.footer-inner {
+		width: calc(100% - 40px);
+		padding: 40px 0 35px;
+		grid-template-columns: 1fr;
+		gap: 35px;
+	}
+
+	.brand-footer {
+		width: 190px;
+	}
+
+	.footer-bottom {
+		padding: 18px 20px;
+		text-align: center;
+		line-height: 1.5;
+	}
+
+	.topbar {
+		padding: 12px 14px;
+		gap: 6px;
+		font-size: 10px;
+		line-height: 1.35;
+		letter-spacing: 0.05em;
+	}
+
+	.topbar a {
+		white-space: nowrap;
+		flex-shrink: 0;
+	}
+}
+
+/* MENÚ MÓVIL */
+
+@media (max-width: 900px) {
+	.site-header {
+		position: relative;
+		z-index: 100;
+	}
+
+	.main-nav {
+		display: none;
+		position: absolute;
+		top: 100%;
+		left: 0;
+		right: 0;
+		z-index: 101;
+		padding: 20px 24px 28px;
+		background: #fbf7f2;
+		border-top: 1px solid var(--line);
+		box-shadow: 0 18px 30px rgba(32, 32, 24, 0.08);
+	}
+
+	.main-nav.is-open {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 0;
+	}
+
+	.main-nav a {
+		display: block;
+		padding: 17px 0;
+		border-bottom: 1px solid var(--line);
+		color: var(--olive);
+		font-size: 13px;
+		font-weight: 600;
+		letter-spacing: 0.1em;
+		text-decoration: none;
+	}
+
+	.main-nav a:last-child {
+		border-bottom: 0;
+	}
+
+	.menu-toggle {
+		cursor: pointer;
+	}
+}
+
+@media (max-width: 600px) {
+	.hero-image img {
+		width: 100%;
+		height: auto;
+		display: block;
+		object-fit: contain;
+	}
+}
+
+/* CABECERA EN TABLET */
+
+@media (min-width: 601px) and (max-width: 1024px) {
+	.header-inner {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		align-items: center;
+		gap: 20px;
+	}
+
+	.header-brand {
+		grid-column: 1;
+		grid-row: 1;
+		justify-self: start;
+	}
+
+	.header-right {
+		grid-column: 2;
+		grid-row: 1;
+		justify-self: end;
+		display: flex;
+		align-items: center;
+	}
+
+	.header-right .divider {
+		display: none;
+	}
+
+	.language-switch {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		white-space: nowrap;
+	}
+
+	.main-nav {
+		display: none;
+	}
+}
+
+/* CORREGIR ESPACIO DEBAJO DE LA IMAGEN EN MÓVIL */
+
+@media (max-width: 600px) {
+	.hero {
+		height: auto;
+		min-height: 0;
+		grid-template-columns: 1fr;
+	}
+
+	.hero-image {
+		height: auto;
+		min-height: 0;
+		aspect-ratio: auto;
+		overflow: visible;
+	}
+
+	.hero-image img {
+		display: block;
+		width: 100%;
+		height: auto;
+		object-fit: contain;
+	}
+
+	.benefits {
+		margin-top: 0;
+	}
+}
+
+/* Instagram en el footer */
+.footer-instagram {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	text-decoration: none;
+	color: inherit;
+}
+
+.footer-instagram svg {
+	width: 17px;
+	height: 17px;
+	flex-shrink: 0;
+	color: #f26b4f;
+}
+
+.footer-instagram:hover {
+	color: #f26b4f;
+}
+
+/* FOOTER - Distribución de tres columnas en escritorio */
+@media (min-width: 901px) {
+	.footer-inner {
+		width: min(1100px, calc(100% - 64px));
+		margin: 0 auto;
+		padding: 28px 0;
+		display: grid;
+		grid-template-columns: 1.5fr 1fr 1fr;
+		column-gap: 70px;
+		align-items: start;
+	}
+
+	.footer-brand,
+	.footer-column {
+		grid-column: auto;
+		grid-row: auto;
+	}
+}
+@media (min-width: 901px) {
+	.footer-brand {
+		transform: translateY(-12px);
 	}
 }
