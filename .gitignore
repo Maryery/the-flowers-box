@@ -3,3 +3,5 @@ node_modules/
 .env.local
 .vercel/
 .vercel
+evento-soft-blush.json
+api/recuperar-pedido.js

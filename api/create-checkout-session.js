@@ -18,6 +18,26 @@ const MUNICIPIOS_VALIDOS = [
 	'Granadilla de Abona',
 ];
 
+function textoValido(valor, maximo) {
+	return (
+		typeof valor === 'string' &&
+		valor.trim().length > 0 &&
+		valor.length <= maximo
+	);
+}
+
+function textoOpcionalValido(valor, maximo) {
+	return (
+		valor === undefined ||
+		valor === null ||
+		(typeof valor === 'string' && valor.length <= maximo)
+	);
+}
+
+function emailValido(valor) {
+	return textoValido(valor, 254) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
+}
+
 module.exports = async function handler(req, res) {
 	if (req.method !== 'POST') {
 		return res.status(405).json({
@@ -41,65 +61,51 @@ module.exports = async function handler(req, res) {
 		} = req.body;
 
 		// Comprobamos los campos obligatorios
+		// Validamos los datos del pedido
+
+		// Validamos la fecha de entrega según el calendario de Tenerife
+		if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+			return res.status(400).json({
+				error: 'Formato de fecha no válido.',
+			});
+		}
+
+		const [year, month, day] = fecha.split('-').map(Number);
+		const fechaUTC = new Date(Date.UTC(year, month - 1, day));
+
+		// Comprobamos que la fecha exista realmente
 		if (
-			!nombre ||
-			!telefono ||
-			!email ||
-			!producto ||
-			!fecha ||
-			!destinatario ||
-			!zona ||
-			!direccion
+			fechaUTC.getUTCFullYear() !== year ||
+			fechaUTC.getUTCMonth() !== month - 1 ||
+			fechaUTC.getUTCDate() !== day
 		) {
-			return res.status(400).json({
-				error: 'Faltan datos obligatorios del pedido.',
-			});
-		}
-
-		// Comprobamos que la Flower Box sea una de las disponibles
-		if (!PRODUCTOS_VALIDOS.includes(producto)) {
-			return res.status(400).json({
-				error: 'Flower Box no válida.',
-			});
-		}
-
-		// Comprobamos que la zona de entrega sea válida
-		if (!MUNICIPIOS_VALIDOS.includes(zona)) {
-			return res.status(400).json({
-				error: 'Zona de entrega no válida.',
-			});
-		}
-
-		// Validación de la fecha
-		const fechaEntrega = new Date(`${fecha}T12:00:00`);
-
-		if (Number.isNaN(fechaEntrega.getTime())) {
 			return res.status(400).json({
 				error: 'Fecha de entrega no válida.',
 			});
 		}
 
-		// No se realizan entregas los domingos
-		if (fechaEntrega.getDay() === 0) {
+		// No realizamos entregas los domingos
+		if (fechaUTC.getUTCDay() === 0) {
 			return res.status(400).json({
 				error: 'No realizamos entregas los domingos.',
 			});
 		}
 
-		// Comprobamos que haya al menos 24 horas de antelación
+		// Calculamos la fecha mínima según la hora de Tenerife
 		const ahora = new Date();
 		const fechaMinima = new Date(ahora.getTime() + 24 * 60 * 60 * 1000);
 
-		/*
-		 * Como el cliente selecciona un día y no una hora concreta,
-		 * consideramos válida la fecha si el día seleccionado no es
-		 * anterior al día mínimo permitido.
-		 */
-		const fechaMinimaTexto = [
-			fechaMinima.getFullYear(),
-			String(fechaMinima.getMonth() + 1).padStart(2, '0'),
-			String(fechaMinima.getDate()).padStart(2, '0'),
-		].join('-');
+		const partesFecha = new Intl.DateTimeFormat('en-CA', {
+			timeZone: 'Atlantic/Canary',
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+		}).formatToParts(fechaMinima);
+
+		const obtenerParte = (tipo) =>
+			partesFecha.find((parte) => parte.type === tipo).value;
+
+		const fechaMinimaTexto = `${obtenerParte('year')}-${obtenerParte('month')}-${obtenerParte('day')}`;
 
 		if (fecha < fechaMinimaTexto) {
 			return res.status(400).json({
@@ -114,7 +120,7 @@ module.exports = async function handler(req, res) {
 		 * Stripe utiliza exclusivamente PRICE_ID, correspondiente
 		 * a la Flower Box de 25 flores por 75 €.
 		 */
-
+		console.log('SITE_URL utilizada:', process.env.SITE_URL);
 		const session = await stripe.checkout.sessions.create({
 			mode: 'payment',
 
@@ -146,8 +152,8 @@ module.exports = async function handler(req, res) {
 				comentarios: String(comentarios || '').slice(0, 500),
 			},
 
-			success_url: `${req.headers.origin}/${idioma === 'en' ? 'index-en.html' : ''}?pago=correcto`,
-			cancel_url: `${req.headers.origin}/${idioma === 'en' ? 'index-en.html' : ''}#pedido`,
+			success_url: `${process.env.SITE_URL}/${idioma === 'en' ? 'index-en.html' : ''}?pago=correcto`,
+			cancel_url: `${process.env.SITE_URL}/${idioma === 'en' ? 'index-en.html' : ''}#pedido`,
 		});
 
 		return res.status(200).json({

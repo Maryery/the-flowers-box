@@ -1,5 +1,6 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require('nodemailer');
+const { obtenerSupabase } = require('./_lib/supabase');
 
 const GMAIL_USER = process.env.GMAIL_USER;
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
@@ -38,7 +39,132 @@ function formatearTotal(total, moneda = 'eur') {
 	}).format((total || 0) / 100);
 }
 
-async function enviarCorreosPedido(pedido) {
+async function guardarPedido(pedido) {
+	const supabase = obtenerSupabase();
+
+	const { data, error } = await supabase
+		.from('pedidos')
+		.upsert(
+			{
+				stripe_session_id: pedido.sessionId,
+				stripe_payment_intent_id: pedido.paymentIntent,
+				idioma: pedido.idioma,
+				nombre: pedido.nombre,
+				telefono: pedido.telefono,
+				email: pedido.email,
+				producto: pedido.producto,
+				fecha_entrega: pedido.fecha,
+				destinatario: pedido.destinatario,
+				zona: pedido.zona,
+				direccion: pedido.direccion,
+				dedicatoria: pedido.dedicatoria,
+				comentarios: pedido.comentarios,
+				total_centimos: pedido.total,
+				moneda: pedido.moneda,
+				estado_pago: 'pagado',
+			},
+			{ onConflict: 'stripe_session_id', ignoreDuplicates: true }
+		)
+		.select('id, estado_correos')
+		.maybeSingle();
+
+	if (error) {
+		throw new Error(`Error guardando pedido: ${error.message}`);
+	}
+
+	return data;
+}
+
+async function consultarEstadoCorreos(sessionId) {
+	const supabase = obtenerSupabase();
+
+	const { data, error } = await supabase
+		.from('pedidos')
+		.select(
+			'estado_correos, correo_cliente_enviado_en, correo_tienda_enviado_en'
+		)
+		.eq('stripe_session_id', sessionId)
+		.single();
+
+	if (error) {
+		throw new Error(`Error consultando el pedido: ${error.message}`);
+	}
+
+	return data;
+}
+
+async function reservarEnvioPedido(sessionId) {
+	const supabase = obtenerSupabase();
+
+	const { data, error } = await supabase.rpc('reservar_envio_pedido', {
+		p_stripe_session_id: sessionId,
+	});
+
+	if (error) {
+		throw new Error(`Error reservando el envío: ${error.message}`);
+	}
+
+	return data === true;
+}
+
+async function marcarCorreoEnviado(sessionId, tipo) {
+	const columna =
+		tipo === 'cliente'
+			? 'correo_cliente_enviado_en'
+			: tipo === 'tienda'
+				? 'correo_tienda_enviado_en'
+				: null;
+
+	if (!columna) {
+		throw new Error('Tipo de correo no válido.');
+	}
+
+	const supabase = obtenerSupabase();
+
+	const { error } = await supabase
+		.from('pedidos')
+		.update({
+			[columna]: new Date().toISOString(),
+		})
+		.eq('stripe_session_id', sessionId);
+
+	if (error) {
+		throw new Error(`Error registrando correo enviado: ${error.message}`);
+	}
+}
+
+async function marcarErrorEnvioPedido(sessionId, motivoError) {
+	const supabase = obtenerSupabase();
+
+	const { error } = await supabase.rpc('marcar_error_envio_pedido', {
+		p_stripe_session_id: sessionId,
+		p_error: motivoError,
+	});
+
+	if (error) {
+		throw new Error(
+			`Error actualizando el estado del pedido: ${error.message}`
+		);
+	}
+}
+
+async function completarEnvioPedido(sessionId) {
+	const supabase = obtenerSupabase();
+
+	const { data, error } = await supabase.rpc('completar_envio_pedido', {
+		p_stripe_session_id: sessionId,
+	});
+
+	if (error) {
+		throw new Error(`Error completando el pedido: ${error.message}`);
+	}
+
+	if (data !== true) {
+		throw new Error('No se pudo confirmar el envío de ambos correos.');
+	}
+}
+
+async function enviarCorreosPedido(pedido, estadoCorreos = {}) {
 	if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
 		throw new Error('Faltan las variables de entorno de Gmail.');
 	}
@@ -137,21 +263,26 @@ async function enviarCorreosPedido(pedido) {
 			</div>
 		`;
 
-	await transporter.sendMail({
-		from: `"The Flowers Box" <${GMAIL_USER}>`,
-		to: pedido.email,
-		replyTo: GMAIL_USER,
-		subject: asuntoCliente,
-		html: contenidoCliente,
-	});
+	if (!estadoCorreos.correo_cliente_enviado_en) {
+		await transporter.sendMail({
+			from: `"The Flowers Box" <${GMAIL_USER}>`,
+			to: pedido.email,
+			replyTo: GMAIL_USER,
+			subject: asuntoCliente,
+			html: contenidoCliente,
+		});
+
+		await marcarCorreoEnviado(pedido.sessionId, 'cliente');
+	}
 
 	// 2. Aviso completo para The Flowers Box
-	await transporter.sendMail({
-		from: `"Pedidos The Flowers Box" <${GMAIL_USER}>`,
-		to: GMAIL_USER,
-		replyTo: pedido.email,
-		subject: `NUEVO PEDIDO PAGADO · ${pedido.producto} · ${fecha}`,
-		html: `
+	if (!estadoCorreos.correo_tienda_enviado_en) {
+		await transporter.sendMail({
+			from: `"Pedidos The Flowers Box" <${GMAIL_USER}>`,
+			to: GMAIL_USER,
+			replyTo: pedido.email,
+			subject: `NUEVO PEDIDO PAGADO · ${pedido.producto} · ${fecha}`,
+			html: `
 			<div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; color: #202018; line-height: 1.6;">
 				<h1 style="color: #F26B4F; font-size: 28px;">
 					Nuevo pedido pagado
@@ -195,7 +326,10 @@ async function enviarCorreosPedido(pedido) {
 				</p>
 			</div>
 		`,
-	});
+		});
+
+		await marcarCorreoEnviado(pedido.sessionId, 'tienda');
+	}
 }
 
 export async function POST(request) {
@@ -209,15 +343,22 @@ export async function POST(request) {
 
 	const signature = request.headers.get('stripe-signature');
 
+	let event;
+
 	try {
 		const rawBody = await request.text();
 
-		const event = stripe.webhooks.constructEvent(
-			rawBody,
-			signature,
-			webhookSecret
-		);
+		event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+	} catch (error) {
+		console.error('Firma de Stripe no válida:', error.message);
 
+		return Response.json(
+			{ error: 'Firma del webhook no válida' },
+			{ status: 400 }
+		);
+	}
+
+	try {
 		if (event.type === 'checkout.session.completed') {
 			const session = event.data.object;
 
@@ -241,20 +382,64 @@ export async function POST(request) {
 				};
 
 				console.log('PAGO CONFIRMADO POR STRIPE');
-				console.log('PEDIDO CONFIRMADO:', pedido);
+				console.log('PEDIDO CONFIRMADO:', {
+					sessionId: pedido.sessionId,
+					producto: pedido.producto,
+					total: pedido.total,
+					moneda: pedido.moneda,
+				});
+
+				await guardarPedido(pedido);
+				console.log('PEDIDO REGISTRADO EN SUPABASE:', pedido.sessionId);
 
 				if (!pedido.email) {
-					console.error('El pedido no contiene un email de cliente.');
+					throw new Error('El pedido pagado no contiene un email de cliente.');
 				} else {
-					try {
-						await enviarCorreosPedido(pedido);
+					const envioReservado = await reservarEnvioPedido(pedido.sessionId);
 
-						console.log('CORREOS DEL PEDIDO ENVIADOS CORRECTAMENTE');
-					} catch (emailError) {
-						console.error(
-							'ERROR ENVIANDO LOS CORREOS DEL PEDIDO:',
-							emailError.message
+					if (envioReservado) {
+						const estadoCorreos = await consultarEstadoCorreos(
+							pedido.sessionId
 						);
+
+						try {
+							await enviarCorreosPedido(pedido, estadoCorreos);
+
+							await completarEnvioPedido(pedido.sessionId);
+
+							console.log(
+								'PEDIDO COMPLETADO Y CORREOS REGISTRADOS:',
+								pedido.sessionId
+							);
+						} catch (emailError) {
+							console.error(
+								'ERROR ENVIANDO LOS CORREOS DEL PEDIDO:',
+								emailError.message
+							);
+
+							await marcarErrorEnvioPedido(
+								pedido.sessionId,
+								emailError.message
+							);
+
+							throw emailError;
+						}
+					} else {
+						const estadoActual = await consultarEstadoCorreos(pedido.sessionId);
+
+						if (estadoActual.estado_correos === 'enviado') {
+							console.log('PEDIDO YA COMPLETADO:', pedido.sessionId);
+						} else {
+							console.error(
+								'PEDIDO PENDIENTE DE REVISIÓN:',
+								pedido.sessionId,
+								estadoActual.estado_correos
+							);
+
+							throw new Error(
+								'El pedido no está completado y necesita revisión.'
+							);
+						}
 					}
 				}
 			}
@@ -262,11 +447,11 @@ export async function POST(request) {
 
 		return Response.json({ received: true }, { status: 200 });
 	} catch (error) {
-		console.error('Error verificando webhook de Stripe:', error.message);
+		console.error('Error procesando webhook de Stripe:', error.message);
 
 		return Response.json(
-			{ error: 'Firma del webhook no válida' },
-			{ status: 400 }
+			{ error: 'Error interno procesando el pedido' },
+			{ status: 500 }
 		);
 	}
 }

@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Maryery/the-flowers-box#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.3",
     "nodemailer": "^10.0.15",
     "stripe": "^23.0.0"
   }
