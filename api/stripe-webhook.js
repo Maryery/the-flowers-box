@@ -93,6 +93,22 @@ async function consultarEstadoCorreos(sessionId) {
 	return data;
 }
 
+async function buscarPedidoExistente(sessionId) {
+	const supabase = obtenerSupabase();
+
+	const { data, error } = await supabase
+		.from('pedidos')
+		.select('estado_correos')
+		.eq('stripe_session_id', sessionId)
+		.maybeSingle();
+
+	if (error) {
+		throw new Error(`Error buscando pedido existente: ${error.message}`);
+	}
+
+	return data;
+}
+
 async function reservarEnvioPedido(sessionId) {
 	const supabase = obtenerSupabase();
 
@@ -388,6 +404,62 @@ export async function POST(request) {
 					total: pedido.total,
 					moneda: pedido.moneda,
 				});
+
+				const pedidoExistente = await buscarPedidoExistente(session.id);
+
+				if (pedidoExistente?.estado_correos === 'enviado') {
+					console.log('PEDIDO YA COMPLETADO:', session.id);
+					return Response.json({ received: true }, { status: 200 });
+				}
+
+				if (session.amount_total !== 7500 || session.currency !== 'eur') {
+					throw new Error(
+						'Importe o moneda inesperados. Revisión necesaria: ' + session.id
+					);
+				}
+
+				if (session.metadata?.origen_pedido !== 'theflowersbox_web') {
+					throw new Error(
+						'Pago sin identificador de The Flowers Box. Revisión necesaria: ' +
+							session.id
+					);
+				}
+
+				const productosValidos = [
+					'Red Passion',
+					'Pink Moment',
+					'Pure White',
+					'Blush Garden',
+					'Soft Blush',
+					'Pink Harmony',
+				];
+
+				if (!productosValidos.includes(pedido.producto)) {
+					throw new Error(
+						'Producto no reconocido. Revisión necesaria: ' + pedido.sessionId
+					);
+				}
+
+				const fechaValida =
+					/^\d{4}-\d{2}-\d{2}$/.test(pedido.fecha) &&
+					!Number.isNaN(Date.parse(pedido.fecha)) &&
+					new Date(pedido.fecha).toISOString().slice(0, 10) === pedido.fecha;
+
+				if (
+					!fechaValida ||
+					!pedido.email ||
+					!pedido.nombre ||
+					!pedido.telefono ||
+					!pedido.producto ||
+					!pedido.destinatario ||
+					!pedido.zona ||
+					!pedido.direccion
+				) {
+					throw new Error(
+						'Pedido pagado con datos incompletos. Revisión necesaria: ' +
+							pedido.sessionId
+					);
+				}
 
 				await guardarPedido(pedido);
 				console.log('PEDIDO REGISTRADO EN SUPABASE:', pedido.sessionId);

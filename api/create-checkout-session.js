@@ -120,7 +120,6 @@ module.exports = async function handler(req, res) {
 		 * Stripe utiliza exclusivamente PRICE_ID, correspondiente
 		 * a la Flower Box de 25 flores por 75 €.
 		 */
-		console.log('SITE_URL utilizada:', process.env.SITE_URL);
 		const session = await stripe.checkout.sessions.create({
 			mode: 'payment',
 
@@ -140,6 +139,7 @@ module.exports = async function handler(req, res) {
 			 * únicamente después de que Stripe confirme el pago.
 			 */
 			metadata: {
+				origen_pedido: 'theflowersbox_web',
 				idioma: idioma === 'en' ? 'en' : 'es',
 				nombre: String(nombre).slice(0, 500),
 				telefono: String(telefono).slice(0, 500),
