@@ -1,6 +1,6 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-const PRICE_ID = 'price_1UMRUGIFAjzManMBBtnc2nor';
+const PRICE_ID = 'price_1URHuQIFAjzManMB4lclhli7';
 
 const PRODUCTOS_VALIDOS = [
 	'Red Passion',
